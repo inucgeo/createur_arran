@@ -1,0 +1,2872 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Les Terres d'Arran — Créateur de personnage</title>
+<style>
+:root {
+  --parchment: #ECE2C6;
+  --parchment-deep: #E0D2A8;
+  --panel: #F6EFD9;
+  --ink: #2A2018;
+  --ink-soft: #5B4D38;
+  --gold: #8C6A24;
+  --gold-soft: #C7A55A;
+  --crimson: #7A2E2E;
+  --teal: #2F6B66;
+  --line: #C9B47E;
+  --shadow: 0 2px 8px rgba(42, 32, 24, 0.18);
+  --radius: 6px;
+  font-size: 16px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--parchment);
+  color: var(--ink);
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4 {
+  font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  color: var(--gold);
+  margin: 0 0 0.4em 0;
+  font-weight: normal;
+}
+
+h1 { font-size: 1.7rem; letter-spacing: 0.02em; }
+h2 { font-size: 1.25rem; border-bottom: 2px solid var(--line); padding-bottom: 0.3em; margin-bottom: 0.7em; }
+h3 { font-size: 1.05rem; color: var(--ink-soft); }
+
+a { color: var(--teal); }
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.2rem;
+}
+
+header.top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 3px double var(--gold-soft);
+}
+
+header.top .seal {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #F6EFD9, var(--gold-soft) 70%, var(--gold) 100%);
+  border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, serif;
+  font-weight: bold; color: var(--ink);
+  flex-shrink: 0;
+}
+
+header.top .titles h1 { margin: 0; }
+header.top .titles .subtitle { color: var(--ink-soft); font-size: 0.85rem; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  gap: 1.4rem;
+  align-items: start;
+}
+
+@media (max-width: 920px) {
+  .layout { grid-template-columns: 1fr; }
+  .sheet-panel { position: static !important; }
+}
+
+.steps-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.steps-nav button {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink-soft);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.steps-nav button.active {
+  background: var(--gold);
+  color: #fff;
+  border-color: var(--gold);
+  font-weight: 600;
+}
+.steps-nav button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.divider {
+  height: 1px;
+  margin: 1rem 0;
+  background: linear-gradient(to right, transparent, var(--gold-soft), transparent);
+}
+
+.field { margin-bottom: 0.9rem; }
+.field label { display: block; font-weight: 600; margin-bottom: 0.25rem; color: var(--ink-soft); font-size: 0.92rem; }
+.hint { font-size: 0.82rem; color: var(--ink-soft); }
+.field .hint { font-size: 0.8rem; color: var(--ink-soft); margin-top: 0.2rem; }
+
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+textarea { min-height: 70px; resize: vertical; }
+
+.btn {
+  display: inline-block;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.btn:hover { background: var(--ink-soft); }
+.btn.secondary { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+.btn.secondary:hover { background: var(--gold); color: #fff; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-row { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+@media (max-width: 600px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+.carac-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 0.6fr 1.6fr;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.carac-row:last-child { border-bottom: none; }
+.carac-row .nom { font-weight: 600; }
+.carac-row .mod { text-align: center; font-family: Georgia, serif; font-size: 1.1rem; }
+.carac-row .mod.pos { color: var(--teal); }
+.carac-row .mod.neg { color: var(--crimson); }
+@media (max-width: 600px) {
+  .carac-row { grid-template-columns: 1fr auto auto; }
+  .carac-row > .hint { grid-column: 1 / -1; }
+}
+
+.tag {
+  display: inline-block;
+  background: var(--parchment-deep);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.76rem;
+  margin: 0.1rem 0.2rem 0.1rem 0;
+  color: var(--ink-soft);
+}
+
+.culture-card, .archetype-card, .voie-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.culture-card:hover, .archetype-card:hover, .voie-card:hover { box-shadow: var(--shadow); }
+.culture-card.selected, .archetype-card.selected, .voie-card.selected {
+  border-color: var(--gold);
+  background: #FFFBF0;
+  box-shadow: 0 0 0 2px var(--gold-soft) inset;
+}
+.culture-card h4, .archetype-card h4, .voie-card h4 { margin: 0 0 0.25rem 0; color: var(--ink); font-family: Georgia, serif; }
+.culture-card .flavor, .archetype-card .desc { font-size: 0.84rem; color: var(--ink-soft); margin: 0.2rem 0; }
+
+.capacite-rang {
+  border-left: 3px solid var(--line);
+  padding: 0.4rem 0.7rem;
+  margin-bottom: 0.4rem;
+  background: #fff;
+  border-radius: 0 4px 4px 0;
+}
+.capacite-rang.acquise { border-left-color: var(--teal); background: #F2F8F6; }
+.capacite-rang.selectable { cursor: pointer; }
+.capacite-rang.selectable:hover { background: #FFF8E8; }
+.capacite-rang .rang-num { font-weight: 700; color: var(--gold); margin-right: 0.4rem; }
+.capacite-rang .nom-cap { font-weight: 600; }
+.capacite-rang .txt { font-size: 0.84rem; color: var(--ink-soft); margin-top: 0.15rem; }
+.capacite-rang .effet-badge { display: inline-block; font-size: 0.7rem; color: var(--teal); border: 1px solid var(--teal); border-radius: 4px; padding: 0 0.3rem; margin-left: 0.4rem; }
+
+/* ---- Sheet panel ---- */
+.sheet-panel { position: sticky; top: 1rem; }
+.sheet {
+  background: var(--panel);
+  border: 1px solid var(--gold-soft);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1rem 1.1rem;
+}
+.sheet h2 { font-size: 1.1rem; }
+.sheet .nom-perso { font-family: Georgia, serif; font-size: 1.3rem; color: var(--ink); margin-bottom: 0.2rem; }
+.sheet .sous-titre { color: var(--ink-soft); font-size: 0.85rem; margin-bottom: 0.8rem; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.8rem; }
+.stat-box {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+}
+.stat-box .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); }
+.stat-box .value { font-family: Georgia, serif; font-size: 1.25rem; color: var(--ink); }
+.stat-box.wide { grid-column: span 2; }
+
+.mini-caracs { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.3rem; margin-bottom: 0.8rem; }
+.mini-carac { text-align: center; background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 0.3rem 0.1rem; }
+.mini-carac .k { font-size: 0.68rem; color: var(--ink-soft); }
+.mini-carac .v { font-family: Georgia, serif; font-size: 1.05rem; }
+.mini-carac .m { font-size: 0.78rem; color: var(--teal); }
+
+.sheet ul.liste-simple { list-style: none; margin: 0; padding: 0; font-size: 0.85rem; }
+.sheet ul.liste-simple li { padding: 0.15rem 0; border-bottom: 1px dashed var(--line); }
+
+.warning-box {
+  background: #FBEDEA;
+  border: 1px solid var(--crimson);
+  color: var(--crimson);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.7rem;
+}
+.info-box {
+  background: #EAF3F2;
+  border: 1px solid var(--teal);
+  color: var(--ink);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.7rem;
+}
+
+footer.app-footer { text-align: center; color: var(--ink-soft); font-size: 0.78rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+
+/* ---- Print ---- */
+@media print {
+  body * { visibility: hidden; }
+  #print-sheet, #print-sheet * { visibility: visible; }
+  #print-sheet {
+    position: absolute; top: 0; left: 0; width: 100%;
+    background: #fff; color: #000; padding: 0;
+  }
+  .no-print { display: none !important; }
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="seal">TA</div>
+    <div class="titles">
+      <h1>Les Terres d'Arran</h1>
+      <div class="subtitle">Créateur de personnage — calcul automatique des caractéristiques, capacités et statistiques</div>
+    </div>
+  </header>
+
+  <div class="steps-nav no-print" id="steps-nav"></div>
+
+  <div class="layout">
+    <div id="step-content"></div>
+    <div class="sheet-panel no-print">
+      <div class="sheet" id="sheet-content"></div>
+    </div>
+  </div>
+
+  <footer class="app-footer no-print">
+    Outil non officiel à usage privé, réalisé à partir du Livre du joueur des Terres d'Arran (© Black Book Éditions). Règle maison : répartition libre de 77 points (8 à 18) au lieu des méthodes du livre. La création en cours est enregistrée dans ce navigateur. Trente voies de profil (cent cinquante capacités), seize cultures et cinquante-et-un profils archétypaux sont intégrés. Les voies de prestige (à partir du niveau 8) ne sont pas encore détaillées dans cette version.
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   TERRES D'ARRAN — Données de base
+   Source : Livre du joueur, chapitre 2 "La création de personnage"
+   ============================================================ */
+
+const CARACS = [
+  { id: "FOR", nom: "Force", description: "Mesure la puissance physique et musculaire. Gagner un bras de fer, soulever, tordre, lancer un objet lourd, immobiliser un adversaire. Détermine la capacité à porter des attaques de contact et à blesser." },
+  { id: "DEX", nom: "Dextérité", description: "Évalue l'agilité, les réflexes et l'adresse. Faire des acrobaties, tenir en équilibre, grimper, sauter, sprinter, se déplacer en silence, crocheter, chaparder. Détermine la capacité à porter des attaques à distance, à éviter les coups et la vivacité en combat." },
+  { id: "CON", nom: "Constitution", description: "Représente la santé et l'endurance. Résister aux éléments, à la fatigue, aux poisons, aux privations, courir longtemps. Détermine la capacité à encaisser des blessures et à en guérir." },
+  { id: "INT", nom: "Intelligence", description: "Représente les capacités d'apprentissage et de raisonnement. Raisonner, comprendre, connaître, apprendre, se souvenir, chercher, trouver une information. Détermine l'efficacité avec laquelle le personnage lance ses sorts et leur puissance." },
+  { id: "SAG", nom: "Sagesse", description: "Relie le personnage à l'univers : volonté, intuition, perception. Observer, entendre, détecter, repérer, pister, deviner, ressentir, résister à la peur ou aux influences mentales. Détermine la quantité de sorts pouvant être lancés ainsi que leur durée." },
+  { id: "CHA", nom: "Charisme", description: "Traduit la force de persuasion, la présence et la capacité à commander. Bluffer, mentir, négocier, séduire, intimider, convaincre. Détermine également la chance du personnage." },
+];
+
+/* Table 1 : valeur de Carac. -> modificateur (Livre du joueur, p.41) */
+function modFromValeur(valeur) {
+  if (valeur <= 3) return -4;
+  if (valeur <= 5) return -3;
+  if (valeur <= 7) return -2;
+  if (valeur <= 9) return -1;
+  if (valeur <= 11) return 0;
+  if (valeur <= 13) return 1;
+  if (valeur <= 15) return 2;
+  if (valeur <= 17) return 3;
+  if (valeur <= 19) return 4;
+  if (valeur <= 21) return 5;
+  // au-delà de 21, on continue la progression par paliers de 2
+  return 5 + Math.ceil((valeur - 21) / 2);
+}
+
+/* Familles de profil — Livre du joueur p.44 */
+const FAMILLES = {
+  combattant: {
+    id: "combattant",
+    nom: "Combattant",
+    deVie: 10,
+    formationsMartiales: 3,
+    bonusAttaqueContact: 2,
+    bonusAttaqueDistance: 2,
+    bonusAttaqueMagique: 0,
+    bruleMagieRatio: 2, // 1 PM = 2 PV
+    bonusPC: 0,
+    multiplicateurPM: 1,
+    talentMagiqueRequis: false,
+    description: "Force brute, art de la guerre et combat. La Force et la Constitution sont les caractéristiques privilégiées. Brûlure de magie doublée (1 PM = 2 PV).",
+  },
+  aventurier: {
+    id: "aventurier",
+    nom: "Aventurier",
+    deVie: 8,
+    formationsMartiales: 2,
+    bonusAttaqueContact: 1,
+    bonusAttaqueDistance: 1,
+    bonusAttaqueMagique: 0,
+    bruleMagieRatio: 1,
+    bonusPC: 2,
+    multiplicateurPM: 1,
+    talentMagiqueRequis: false,
+    description: "Voyage, exploration, discrétion et aptitudes sociales. La Dextérité et le Charisme sont privilégiés. Bonus de +2 aux Points de chance.",
+  },
+  mystique: {
+    id: "mystique",
+    nom: "Mystique",
+    deVie: 6,
+    formationsMartiales: 1,
+    bonusAttaqueContact: 0,
+    bonusAttaqueDistance: 0,
+    bonusAttaqueMagique: 2,
+    bruleMagieRatio: 1,
+    bonusPC: 0,
+    multiplicateurPM: 2, // PM doublés
+    talentMagiqueRequis: true,
+    description: "Savants, sages et adeptes des forces occultes. L'Intelligence et la Sagesse sont privilégiées. Points de magie doublés et talent magique offert.",
+  },
+};
+
+/* Talents magiques — Livre du joueur p.44-45 (réservés à la famille des mystiques) */
+const TALENTS_MAGIQUES = [
+  {
+    id: "detection_magie",
+    nom: "Détection de la magie",
+    texte: "Pour une action d'attaque, le mystique se concentre et détecte la présence de toute inscription, aura ou objet magique situé(e) dans la pièce où il se trouve (ou dans les 15 mètres autour de lui).",
+  },
+  {
+    id: "flamme",
+    nom: "Flamme",
+    texte: "Pour une action gratuite et tant qu'il le souhaite, le mystique fait apparaître dans la paume de sa main une petite flamme, à peine assez intense pour éclairer une zone dans un rayon de 5 mètres. Il peut l'utiliser pour mettre le feu à des matières inflammables ou porter une attaque de contact — pour une action d'attaque — à un adversaire en utilisant son score d'attaque magique et lui infligeant 1d6 DM.",
+  },
+  {
+    id: "inspiration",
+    nom: "Inspiration",
+    texte: "Au prix d'une action d'attaque, le mystique désigne un allié à moins de 10 mètres et lui octroie un bonus de +1 à tous ses tests pendant [2 + Mod. SAG] tours. Il peut lancer une inspiration à chaque tour mais ne peut maintenir plus de [1 + Mod. INT] inspirations à la fois (minimum 1).",
+  },
+  {
+    id: "lumieres_dansantes",
+    nom: "Lumières dansantes",
+    texte: "Au prix d'une action de mouvement, le mystique fait apparaître trois petites sphères de lumière de la couleur de son choix lévitant autour de son corps. Elles éclairent une zone dans un rayon de 20 mètres et persistent aussi longtemps que le mystique le souhaite. Le moindre DM subi rompt la concentration et les fait disparaître.",
+  },
+  {
+    id: "projectile_force",
+    nom: "Projectile de force",
+    texte: "Pour une action d'attaque, le mystique choisit une cible visible à moins de 50 mètres et projette une onde de choc qui la touche automatiquement, lui infligeant 1d4 DM. Le projectile de force est presque invisible et n'émet aucun son lorsqu'il file dans l'air.",
+  },
+];
+
+/* Catégories d'armes et armures — Livre du joueur p.44 (simplifié pour la formation martiale) */
+const CATEGORIES_EQUIPEMENT = [
+  { id: "paysan", nom: "Armes de paysan", type: "arme", gratuite: true, exemples: "bâton, bâton ferré, dague, fronde, mains nues" },
+  { id: "guerre", nom: "Armes de guerre", type: "arme", exemples: "épée longue, hache à une main, marteau de guerre, masse d'armes" },
+  { id: "guerre_lourde", nom: "Armes de guerre lourdes", type: "arme", exemples: "épée à deux mains, épée bâtarde, hache à deux mains" },
+  { id: "hast", nom: "Armes d'hast", type: "arme", exemples: "épieu, pique, lance, lance de cavalerie" },
+  { id: "duel", nom: "Armes de duel", type: "arme", exemples: "épée courte, rapière, main gauche" },
+  { id: "trait", nom: "Armes de trait", type: "arme", exemples: "arc court, arc composite, arc long" },
+  { id: "tir", nom: "Armes de tir", type: "arme", exemples: "arbalète légère, arbalète lourde, arbalète de poing" },
+  { id: "jet", nom: "Armes de jet", type: "arme", exemples: "couteau de lancer, hachette, javelot" },
+  { id: "legere", nom: "Armures légères", type: "armure", exemples: "petit bouclier, tissu matelassé, armure de cuir, armure de cuir renforcé" },
+  { id: "lourde", nom: "Armures lourdes", type: "armure", exemples: "grand bouclier, chemise de mailles, cotte de mailles, demi-plaques" },
+];
+
+/* Table officielle des armures — Livre du joueur, chapitre "Équipement" p.159 */
+const ARMURES = [
+  { id: "petit_bouclier", nom: "Petit bouclier", categorie: "legere", bonusDEF: 1, prix: "2 pa" },
+  { id: "tissu_matelasse", nom: "Tissu matelassé", categorie: "legere", bonusDEF: 1, prix: "2 pa" },
+  { id: "cuir", nom: "Armure de cuir", categorie: "legere", bonusDEF: 2, prix: "4 pa" },
+  { id: "cuir_renforce", nom: "Armure de cuir renforcée", categorie: "legere", bonusDEF: 3, prix: "8 pa" },
+  { id: "grand_bouclier", nom: "Grand bouclier", categorie: "lourde", bonusDEF: 2, prix: "4 pa" },
+  { id: "mailles", nom: "Chemise de mailles", categorie: "lourde", bonusDEF: 4, prix: "15 pa" },
+  { id: "cotte_mailles", nom: "Cotte de mailles", categorie: "lourde", bonusDEF: 5, prix: "20 pa" },
+  { id: "demi_plaques", nom: "Demi-plaques", categorie: "lourde", bonusDEF: 6, prix: "50 pa", encombrante: true, note: "Encombrante : annule le bonus de DEX à la DEF." },
+  { id: "armure_plaques", nom: "Armure de plaques", categorie: "lourde", bonusDEF: 7, prix: "200 pa", encombrante: true, requisCapacite: "Armure lourde (voie du bastion, rang 5)", note: "Encombrante : annule le bonus de DEX à la DEF. Protège des attaques critiques (DM normaux au lieu de DM doublés)." },
+];
+
+/* Table officielle des armes — Livre du joueur, chapitre "Équipement" p.157-158 */
+const ARMES = [
+  // Armes de paysan (gratuites, maîtrise offerte à tous)
+  { id: "baton", nom: "Bâton", categorie: "paysan", dm: "(1d4)", mod: "FOR", prix: "-", note: "DM temporaires" },
+  { id: "baton_ferre", nom: "Bâton ferré", categorie: "paysan", dm: "1d6", mod: "FOR", prix: "2 pa" },
+  { id: "dague", nom: "Dague", categorie: "paysan", dm: "1d4", mod: "FOR", prix: "3 pa" },
+  { id: "fronde", nom: "Fronde", categorie: "paysan", dm: "1d4", mod: "-", portee: "20 m", prix: "-" },
+  { id: "mains_nues", nom: "Mains nues", categorie: "paysan", dm: "(1d4)", mod: "FOR", prix: "-", note: "DM temporaires" },
+  { id: "grande_hache_bucheron", nom: "Grande hache de bûcheron", categorie: "paysan", dm: "2d4", mod: "FOR", prix: "10 pa", note: "Arme à deux mains. Nécessite une capacité pour être maîtrisée." },
+  // Armes de guerre
+  { id: "epee_longue", nom: "Épée longue", categorie: "guerre", dm: "1d8", mod: "FOR", prix: "6 pa" },
+  { id: "hache_une_main", nom: "Hache à une main", categorie: "guerre", dm: "1d8", mod: "FOR", prix: "6 pa" },
+  { id: "marteau_guerre", nom: "Marteau de guerre", categorie: "guerre", dm: "1d6", mod: "FOR", prix: "4 pa" },
+  { id: "masse_armes", nom: "Masse d'armes", categorie: "guerre", dm: "1d6", mod: "FOR", prix: "4 pa" },
+  // Armes de guerre lourdes (deux mains)
+  { id: "epee_deux_mains", nom: "Épée à deux mains", categorie: "guerre_lourde", dm: "2d6", mod: "FOR", prix: "10 pa", note: "Arme à deux mains." },
+  { id: "epee_bastarde", nom: "Épée bâtarde", categorie: "guerre_lourde", dm: "1d12", mod: "FOR", prix: "9 pa", note: "Arme à deux mains (DM réduits à 1d8 si maniée à une main). Critique sur 19 ou 20." },
+  { id: "marteau_deux_mains", nom: "Marteau à deux mains", categorie: "guerre_lourde", dm: "3d4", mod: "FOR", prix: "12 pa", note: "Arme à deux mains." },
+  { id: "hache_deux_mains", nom: "Hache à deux mains", categorie: "guerre_lourde", dm: "2d6", mod: "FOR", prix: "10 pa", note: "Arme à deux mains." },
+  // Armes d'hast
+  { id: "epieu", nom: "Épieu", categorie: "hast", dm: "1d6", mod: "FOR", prix: "3 pa", note: "+2 DEF contre armes naturelles ; 2d6 DM contre adversaires sans armure manufacturée." },
+  { id: "lance", nom: "Lance", categorie: "hast", dm: "1d8", mod: "FOR", prix: "6 pa", note: "Maniable à une main (DM réduits à 1d6) ou utilisable en arme de jet à courte portée (malus -3)." },
+  { id: "lance_cavalerie", nom: "Lance de cavalerie", categorie: "hast", dm: "2d6", mod: "FOR", prix: "12 pa", note: "Nécessite un déplacement avant l'attaque pour ses DM pleins, sinon malus de -3 en attaque et aux DM." },
+  { id: "pique", nom: "Pique", categorie: "hast", dm: "1d8", mod: "FOR", prix: "5 pa", note: "Double ses DM contre une grande créature chargeant. Malus de -5 en attaque dans les autres conditions." },
+  // Armes de duel
+  { id: "epee_courte", nom: "Épée courte", categorie: "duel", dm: "1d6", mod: "FOR", prix: "5 pa" },
+  { id: "main_gauche", nom: "Main gauche (dague de parade)", categorie: "duel", dm: "1d4", mod: "FOR", prix: "5 pa", note: "+1 DEF en combat au contact uniquement." },
+  { id: "rapiere", nom: "Rapière", categorie: "duel", dm: "1d6", mod: "FOR", prix: "6 pa", note: "Critique sur 19 ou 20." },
+  // Armes de trait (à distance, FOR ou sans mod selon l'arc)
+  { id: "arc_composite", nom: "Arc composite", categorie: "trait", dm: "1d6", mod: "FOR", portee: "50 m", prix: "15 pa", note: "Score minimum de FOR requis : 14." },
+  { id: "arc_court", nom: "Arc court", categorie: "trait", dm: "1d6", mod: "-", portee: "30 m", prix: "4 pa" },
+  { id: "arc_long", nom: "Arc long", categorie: "trait", dm: "1d8", mod: "-", portee: "50 m", prix: "5 pa", note: "Score minimum de FOR requis : 12." },
+  // Armes de tir (arbalètes)
+  { id: "arbalete_poing", nom: "Arbalète de poing", categorie: "tir", dm: "1d6", mod: "-", portee: "10 m", prix: "8 pa", note: "Recharge : action limitée." },
+  { id: "arbalete_legere", nom: "Arbalète légère", categorie: "tir", dm: "2d4", mod: "-", portee: "30 m", prix: "10 pa", note: "Arme à deux mains. Recharge : action limitée." },
+  { id: "arbalete_lourde", nom: "Arbalète lourde", categorie: "tir", dm: "3d4", mod: "-", portee: "60 m", prix: "12 pa", note: "Arme à deux mains. Recharge : action d'attaque." },
+  // Armes de jet
+  { id: "couteau_lancer", nom: "Couteau de lancer", categorie: "jet", dm: "1d4", mod: "DEX", portee: "10 m", prix: "3 pa" },
+  { id: "hachette", nom: "Hachette", categorie: "jet", dm: "1d6", mod: "FOR", portee: "5 m", prix: "2 pa" },
+  { id: "javelot", nom: "Javelot", categorie: "jet", dm: "1d6", mod: "FOR", portee: "20 m", prix: "6 pa" },
+];
+
+/* Progression et niveaux — Livre du joueur p.52 */
+const PROGRESSION = {
+  niveauMax: 20,
+  parNiveau: {
+    pv: "Le joueur lance le DV de son personnage et ajoute le résultat ainsi que le Mod. de CON aux PV.",
+    attaque: "Tous les scores d'attaque augmentent de +1 (déjà intégré dans les formules : elles utilisent [Niveau du PJ]).",
+    pointsCapacite: 2,
+    coutRang1ou2: 1,
+    coutRang3a5: 2,
+  },
+  voiesPrestige: {
+    niveauMinimum: 8,
+    coutParRang: 2,
+    listes: {
+      combattant: ["Voie des armes lourdes", "Voie de la danse de guerre", "Voie du dogme de pierre", "Voie de l'ordre ailé", "Voie de la purification", "Voie de la rage ancestrale", "Voie du sang draconique"],
+      aventurier: ["Voie de l'archerie arcanique", "Voie de l'audace", "Voie du duel", "Voie de la flibusterie", "Voie de la lycanthropie", "Voie des poisons", "Voie des rituels"],
+      mystique: ["Voie des arcanes", "Voie des arts primitifs", "Voie des cristaux", "Voie des éléments", "Voie de la glace", "Voie de la métamorphose", "Voie des vermines"],
+    },
+    note: "Les voies de prestige ne sont pas encore détaillées dans cette application (elles s'acquièrent à partir du niveau 8). Seules les 30 voies de profil de base sont actuellement disponibles pour le calcul automatique.",
+  },
+};
+
+
+/* ============================================================
+   TERRES D'ARRAN — Les peuples d'Arran
+   Source : Livre du joueur, chapitre 3
+   ============================================================ */
+
+const PEUPLES = [];
+
+/* ----------------------------------------------------------
+   LES ELFES
+   ---------------------------------------------------------- */
+PEUPLES.push({
+  id: "elfe",
+  nom: "Elfe",
+  flavor: "Esprits immortels, seconds enfants d'Arran venus au monde après les dragons et avant les Hommes. Installés partout sur les Terres d'Arran, ils vivent en communautés relativement fermées.",
+  modificateurs: { atouts: [{ carac: "CHA", value: 2 }], faiblesses: [{ carac: "FOR", value: -2 }] },
+  age: "80 ans et plus",
+  esperanceVie: "théoriquement immortel",
+  taille: "entre 1,65 m et 1,90 m",
+  poids: "entre 50 kg et 80 kg",
+  trait: { nom: "Lumière des étoiles", texte: "Pour un Elfe, l'obscurité de la nuit sous la lumière des étoiles n'est que de la pénombre, où seuls les petits détails lui échappent." },
+  voiePeuple: {
+    nom: "Voie du peuple elfe",
+    rangs: [
+      { rang: 1, nom: "Grâce elfique", texte: "Le PJ gagne +5 à tous les tests de CHA et de déplacement silencieux." },
+      { rang: 2, nom: "Essence magique", texte: "Le PJ est naturellement lié à l'essence du monde. Il obtient un bonus de +2 en DEF contre les attaques magiques et à tous les tests destinés à résister à la magie. Ce bonus passe à +4 au rang 4 atteint dans cette voie." },
+      { rang: 3, nom: "Maîtrise des armes elfiques", texte: "Le PJ a appris à manier l'artisanat raffiné de son peuple. Il peut porter et utiliser armes et armures de la tradition elfique, pour lesquelles il possède la formation martiale." },
+      { rang: 4, nom: "Empathie elfique", texte: "Le PJ connaît instinctivement la direction à suivre pour retrouver les personnes qui lui sont chères et intimes, quelle que soit la distance qui les sépare. De plus, il ressent leur état de santé physique et psychologique et perçoit si un danger les guette." },
+      { rang: 5, nom: "Immortalité", texte: "Le PJ augmente sa valeur de CON de +2 et ses blessures guérissent plus vite. Lorsqu'il dépense 1 PR, il regagne [2 x DV + niv + Mod. CON].", effets: [{ type: "carac", carac: "CON", value: 2 }] },
+    ],
+  },
+  cultures: [
+    {
+      id: "elfe_bleu",
+      nom: "Elfe bleu",
+      flavor: "Liés à l'élément primordial de l'eau, la peau teintée d'une couleur azurée. La plupart vivent dans des villes portuaires au nord des Terres d'Arran, sur des îles au large du Nodrënn ou à Elsémur, la capitale.",
+      voieCulturelle: {
+        nom: "Voie culturelle des Elfes bleus",
+        rangs: [
+          { rang: 1, nom: "Équilibre parfait", texte: "Habitué aux fluctuations des vagues, le PJ a acquis une coordination hors du commun. Se relever constitue pour lui une action gratuite et il bénéficie d'un bonus de +5 aux tests d'équilibre." },
+          { rang: 2, nom: "Natif d'Elsémur", texte: "Le PJ choisit une caste, religieuse ou guerrière. Il gagne une capacité de rang 1 ou 2 de la voie de la divination ou voie du mysticisme (caste religieuse) ou de la voie de la guerre ou voie du combat à deux armes (caste guerrière). Au rang 4 de cette voie culturelle, il gagne une capacité supplémentaire de rang 1 ou 2 de sa caste." },
+          { rang: 3, nom: "Imperturbable", texte: "Le PJ gagne un bonus de +5 aux tests visant à résister aux effets mentaux (peur, intimidation, sorts d'envoûtement). De plus, il gagne un bonus de +3 en Initiative.", effets: [{ type: "stat", stat: "INIT", value: 3 }] },
+          { rang: 4, nom: "Les enseignements de l'eau", texte: "Le PJ peut retenir sa respiration sous l'eau pendant 15 minutes. Il n'a pas besoin de la lumière du soleil pour se guider au plus profond des océans et peut supporter les températures glaciales et la pression sans problème." },
+          { rang: 5, nom: "Parangon elfe bleu", texte: "Le PJ augmente ses valeurs de CON et SAG de +2.", effets: [{ type: "carac", carac: "CON", value: 2 }, { type: "carac", carac: "SAG", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "elfe_sylvain",
+      nom: "Elfe sylvain",
+      flavor: "Vivant en osmose avec la nature, les Elfes sylvains habitent principalement dans d'immenses forêts (Duhann, Daëdenn, Céliandes). La peau mate et le regard perçant.",
+      voieCulturelle: {
+        nom: "Voie culturelle des Elfes sylvains",
+        rangs: [
+          { rang: 1, nom: "Le chant de la Terre", texte: "Le PJ bénéficie d'un bonus de +5 aux tests de DEX et SAG lorsqu'il est en forêt." },
+          { rang: 2, nom: "Enfant de la forêt", texte: "Le PJ choisit une caste, religieuse ou guerrière. Il gagne une capacité de rang 1 ou 2 de la voie des arts druidiques ou voie des forêts (caste religieuse) ou de la voie de l'archerie et voie du compagnon animal (caste guerrière). Au rang 4 de cette voie culturelle, il gagne une capacité supplémentaire de rang 1 ou 2 de sa caste." },
+          { rang: 3, nom: "Archer émérite", texte: "Lorsqu'il utilise un arc, le PJ obtient une réussite critique sur un résultat de 19-20 au d20. Il gagne la maîtrise des armes de trait." },
+          { rang: 4, nom: "Compagnon animal supérieur", texte: "Le PJ a tissé un lien particulier avec un animal qui lutte à ses côtés. Il gagne le rang 3 de la voie du Compagnon animal. S'il possède déjà cette capacité, son compagnon gagne un bonus de +2 en initiative, en DEF, en attaque et aux DM." },
+          { rang: 5, nom: "Parangon elfe vert", texte: "Le PJ augmente ses valeurs de DEX et SAG de +2.", effets: [{ type: "carac", carac: "DEX", value: 2 }, { type: "carac", carac: "SAG", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "elfe_blanc",
+      nom: "Elfe blanc",
+      flavor: "Originaires de lointaines îles de l'Ouest, à la peau très pâle, ils cherchent à incarner la perfection en toute chose. Rares et frappés d'un grave problème de fécondité, leur population décroît depuis des siècles.",
+      voieCulturelle: {
+        nom: "Voie culturelle des Elfes blancs",
+        rangs: [
+          { rang: 1, nom: "Mémoire du monde", texte: "Le PJ bénéficie d'un bonus de +5 aux tests d'INT relatifs aux connaissances et à l'érudition." },
+          { rang: 2, nom: "Prédispositions magiques", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie de l'envoûtement ou de la voie de la magie élémentaliste. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Lancier d'élite", texte: "Le PJ ignore les malus liés à l'usage des armes d'hast. Il gagne la maîtrise des armes d'hast et un bonus de +1 aux tests d'attaque et aux DM avec une arme d'hast." },
+          { rang: 4, nom: "Blancheur immaculée", texte: "Le PJ n'a besoin que de la moitié du repos, de la nourriture ou de la boisson d'un Elfe normal pour être en pleine forme. Il est immunisé aux effets des poisons et des maladies." },
+          { rang: 5, nom: "Parangon elfe blanc", texte: "Le PJ augmente ses valeurs d'INT et SAG de +2.", effets: [{ type: "carac", carac: "INT", value: 2 }, { type: "carac", carac: "SAG", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "elfe_noir",
+      nom: "Elfe noir",
+      flavor: "Le plus grand secret et la plus grande honte du peuple elfique : des individus hébergeant une part sombre et maléfique, entraînés à la citadelle de Slurce pour devenir des assassins d'exception.",
+      voieCulturelle: {
+        nom: "Voie culturelle des Elfes noirs",
+        rangs: [
+          { rang: 1, nom: "Artiste de l'ombre", texte: "Le PJ choisit un domaine (danse, théâtre, peinture, poésie) et gagne un bonus de +5 à tous les tests de CHA en rapport avec celui-ci, ainsi qu'aux tests visant à trouver ou obtenir des informations secrètes ou sensibles." },
+          { rang: 2, nom: "Apprenti de Slurce", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie de l'assassinat ou de la voie des sombres savoirs. Au rang 4 de cette voie culturelle, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Armes secrètes", texte: "Le PJ peut dissimuler jusqu'à deux armes légères (d6 maxi) et gagne un bonus de +5 à un test de DEX à opposer à un test de SAG de son adversaire. En cas de réussite, la première attaque portée par chaque arme surprend l'adversaire et inflige les DM maximaux." },
+          { rang: 4, nom: "Noir comme le sang", texte: "Une fois par combat, lorsqu'il tombe à 0 PV, le PJ peut continuer à agir normalement mais une nouvelle attaque réussie infligeant au moins 1 point de DM finira par l'achever. Tant qu'il reste à 0 PV, il bénéficie d'un bonus de +2 à tous ses tests." },
+          { rang: 5, nom: "Parangon elfe noir", texte: "Le PJ augmente ses valeurs de DEX et CHA de +2.", effets: [{ type: "carac", carac: "DEX", value: 2 }, { type: "carac", carac: "CHA", value: 2 }] },
+        ],
+      },
+    },
+  ],
+});
+
+
+/* ============================================================
+   TERRES D'ARRAN — Les peuples d'Arran (suite : les Nains)
+   ============================================================ */
+
+PEUPLES.push({
+  id: "nain",
+  nom: "Nain",
+  flavor: "Petits mais musclés, dotés d'une constitution à toute épreuve. Peuple guerrier par excellence, également artisans, architectes, médecins et savants d'exception. Organisé en ordres rigoureusement cloisonnés.",
+  modificateurs: { atouts: [{ carac: "CON", value: 2 }], faiblesses: [{ carac: "DEX", value: -2 }] },
+  age: "40 ans et plus",
+  esperanceVie: "250 ans",
+  taille: "entre 1,25 m et 1,45 m",
+  poids: "entre 50 kg et 100 kg",
+  trait: { nom: "Instinct de survie", texte: "Lorsqu'une attaque devrait amener le Nain à 0 PV, les DM qu'elle inflige sont divisés par deux (minimum 1)." },
+  voiePeuple: {
+    nom: "Voie du peuple nain",
+    rangs: [
+      { rang: 1, nom: "Résistance", texte: "Le PJ gagne un bonus de +5 à tous les tests de CON." },
+      { rang: 2, nom: "Solide comme un roc", texte: "Le PJ réduit tous les DM subis de 1 point (mais il subit toujours au moins 1 point de DM par attaque reçue). Ce bonus est cumulable avec d'autres sources de réduction des DM." },
+      { rang: 3, nom: "Maîtrise des armes runiques", texte: "Le PJ a appris à tirer parti de la puissance des runes gravées par les artisans de l'ordre de la Forge. Il peut porter et utiliser les armes et armures de la tradition naine pour lesquelles il possède la formation martiale." },
+      { rang: 4, nom: "Résistance à la magie", texte: "Chaque fois que le PJ est la cible d'un sort (à l'exception d'un sort de zone), le joueur lance 1d4 : sur un résultat supérieur au rang du sort, il peut en ignorer les effets." },
+      { rang: 5, nom: "Ténacité naine", texte: "Une fois par jour, lorsque le PJ tombe à 0 PV, il peut immédiatement consommer 1 PR et en appliquer les effets. De plus, il augmente sa valeur de SAG de +2.", effets: [{ type: "carac", carac: "SAG", value: 2 }] },
+    ],
+  },
+  cultures: [
+    {
+      id: "ordre_forge",
+      nom: "Ordre de la Forge",
+      flavor: "Regroupe de nombreux corps de métier : forgerons, joailliers, médecins, apothicaires, mineurs et alchimistes. Chargé de la production des armes runiques. Titre honorifique ultime : Seigneur des runes.",
+      voieCulturelle: {
+        nom: "Voie culturelle de l'ordre de la Forge",
+        rangs: [
+          { rang: 1, nom: "Artisan de la forge", texte: "Le PJ choisit un métier présent au sein de l'ordre de la Forge (alchimiste, armurier, médecin, orfèvre, mineur, etc.). Il obtient un bonus de +5 à tous les tests en rapport avec ce métier." },
+          { rang: 2, nom: "Forgeron runique", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie d'alchimie ou de la voie de la magie runique. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Marteler le métal", texte: "Le PJ gagne un bonus de +1 en attaque et aux DM lorsqu'il manie un bâton ferré, un marteau de guerre ou un marteau à deux mains." },
+          { rang: 4, nom: "Runes de défense", texte: "Le PJ grave des runes de protection sur l'ensemble de son équipement et parfois même sur sa peau. Il obtient un bonus de +2 en DEF.", effets: [{ type: "stat", stat: "DEF", value: 2 }] },
+          { rang: 5, nom: "Maître artisan", texte: "Le PJ augmente ses valeurs de DEX et INT de +2.", effets: [{ type: "carac", carac: "DEX", value: 2 }, { type: "carac", carac: "INT", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "ordre_talion",
+      nom: "Ordre du Talion",
+      flavor: "Représente la caste commerçante : marchands, négociants, marins, banquiers, convoyeurs, politiciens et diplomates. Rumeurs d'une société secrète d'assassins : la Loge noire.",
+      voieCulturelle: {
+        nom: "Voie culturelle de l'ordre du Talion",
+        rangs: [
+          { rang: 1, nom: "Plein aux as", texte: "Le PJ n'est jamais à court de liquidités et obtient pour ses dépenses courantes 25 pa par jour pour chaque rang atteint dans cette voie. S'il n'est pas dépensé, cet argent n'est pas comptabilisé dans les économies du personnage." },
+          { rang: 2, nom: "Le sens des affaires", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie du bohème ou de la voie de la fourberie. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Pot-de-vin", texte: "Lorsqu'il rate un test de CHA, le PJ peut obtenir un bonus de +1 par tranche de 10 pa qu'il paie (maximum 100 pa) afin de transformer son échec en réussite." },
+          { rang: 4, nom: "La Loge noire", texte: "Le PJ est protégé par un garde qui confère un bonus de +3 en DEF lorsqu'il est à son contact, et peut faire échouer une attaque visant le PJ une fois par tour. Garde : DEF 16, PV [niveau x 6], attaque [niveau], DM 1d8+2. FOR +2, CON +2." },
+          { rang: 5, nom: "Seigneur du Talion", texte: "Le PJ augmente ses valeurs d'INT et CHA de +2.", effets: [{ type: "carac", carac: "INT", value: 2 }, { type: "carac", carac: "CHA", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "ordre_temple",
+      nom: "Ordre du Temple",
+      flavor: "Caste bicéphale regroupant bâtisseurs, architectes, ingénieurs et savants d'une part, et le culte du dieu nain Yjdad (prêtres, sages, mystiques, exorcistes, conseillers) d'autre part.",
+      voieCulturelle: {
+        nom: "Voie culturelle de l'ordre du Temple",
+        rangs: [
+          { rang: 1, nom: "Grosse tête", texte: "Le PJ peut effectuer un test d'INT au lieu d'un test de FOR. Il obtient un bonus de +5 à tous les tests de bricolage ou de science." },
+          { rang: 2, nom: "Enseigne du Temple", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie de la maîtrise des armes ou de la voie du mysticisme. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Invention étrange", texte: "Le PJ invente — ou reçoit en présent — une arbalète à répétition. Il gagne la maîtrise des armes de tir, incluant la maîtrise de cette arme." },
+          { rang: 4, nom: "Rites funéraires (L)", texte: "Le PJ est capable de sentir les âmes des défunts et de communiquer avec elles (concentration de cinq minutes). Il peut aussi tenter de chasser les esprits vengeurs : test d'INT difficulté 15 pour infliger 2d6 DM à tous les esprits dans la zone." },
+          { rang: 5, nom: "Maître du temple", texte: "Le PJ augmente ses valeurs de CON et INT de +2.", effets: [{ type: "carac", carac: "CON", value: 2 }, { type: "carac", carac: "INT", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "ordre_bouclier",
+      nom: "Ordre du Bouclier",
+      flavor: "Constitue l'armée du peuple nain : sécurité aux frontières, expansion, cohésion et loi au sein des forteresses-États. Le Seigneur de guerre, champion de la couronne, est traditionnellement issu de cet ordre.",
+      voieCulturelle: {
+        nom: "Voie culturelle de l'ordre du Bouclier",
+        rangs: [
+          { rang: 1, nom: "Combat en phalange", texte: "Lorsque le PJ combat la même créature qu'un allié, il gagne +1 en attaque et en DEF par allié au contact avec lui et avec la créature." },
+          { rang: 2, nom: "Formation militaire", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie du bastion ou de la voie du commandement. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Capitaine du Bouclier", texte: "Lorsque le PJ manie un bouclier, ce dernier confère un bonus supplémentaire de +1 en DEF. De plus, une fois par tour, le PJ peut dévier un projectile et ignorer totalement une attaque à distance, sauf critique." },
+          { rang: 4, nom: "Fuite interdite", texte: "Le PJ tient toujours sa position, jusqu'à la mort. Lorsqu'un adversaire à son contact utilise une action de mouvement pour s'éloigner, il peut lui porter une attaque de contact gratuite qui annule son déplacement sans infliger de DM." },
+          { rang: 5, nom: "Veilleur du roi", texte: "Le PJ augmente ses valeurs de FOR et CHA de +2.", effets: [{ type: "carac", carac: "FOR", value: 2 }, { type: "carac", carac: "CHA", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "ordre_errants",
+      nom: "Ordre des Errants",
+      flavor: "Les Errants ne sont pas un ordre au sens strict : déchus ou nés d'un père errant, ils constituent la lie de la société aux yeux des Nains, mais sont les principaux producteurs de denrées alimentaires.",
+      voieCulturelle: {
+        nom: "Voie culturelle de l'ordre des Errants",
+        rangs: [
+          { rang: 1, nom: "Moins que rien", texte: "Le PJ subit un malus de -5 aux tests d'interaction sociale avec les gens de la bonne société, mais gagne un bonus de +5 aux tests auprès des miséreux et un bonus de +5 aux tests de discrétion." },
+          { rang: 2, nom: "Passé révolu", texte: "Le PJ peut choisir une capacité de rang 1 d'une liste étendue de voies (alchimie, magie runique, bohème, fourberie, maîtrise des armes, mysticisme, bastion ou commandement). Au rang 4, il peut choisir une nouvelle capacité de rang 2 dans ces mêmes voies." },
+          { rang: 3, nom: "Paysan aguerri", texte: "Le PJ gagne un bonus de +1 en attaque et aux DM lorsqu'il manie une arme de paysan. Il est formé au maniement de la grande hache de bûcheron." },
+          { rang: 4, nom: "Solidarité des Errants", texte: "Lorsqu'un autre miséreux a la possibilité d'aider le PJ, il lui apporte généralement son aide totale et inconditionnelle (1d6 : 1-4 aide totale, mais le MJ lance secrètement 1d6 — sur 6, le PNJ fomente en réalité un sale coup)." },
+          { rang: 5, nom: "Volonté héroïque", texte: "Le PJ augmente ses valeurs de CON et SAG de +2.", effets: [{ type: "carac", carac: "CON", value: 2 }, { type: "carac", carac: "SAG", value: 2 }] },
+        ],
+      },
+    },
+  ],
+});
+
+
+/* ============================================================
+   TERRES D'ARRAN — Les peuples d'Arran (suite : les Humains)
+   ============================================================ */
+
+PEUPLES.push({
+  id: "humain",
+  nom: "Humain",
+  flavor: "Peuple très hétéroclite et très commun sur les Terres d'Arran. N'ont ni la longévité des Elfes ni la robustesse des Nains, mais compensent par leur incroyable capacité d'adaptation et une fécondité impressionnante.",
+  modificateurs: { atouts: [], faiblesses: [] },
+  age: "18 ans et plus",
+  esperanceVie: "70 ans",
+  taille: "entre 1,50 m et 2,00 m",
+  poids: "entre 40 kg et 120 kg",
+  trait: null,
+  voiePeuple: {
+    nom: "Voie du peuple humain",
+    rangs: [
+      { rang: 1, nom: "Adaptable", texte: "Après avoir raté un test de Carac., le PJ obtient un bonus de +5 au prochain test pour retenter la même action au prochain tour." },
+      { rang: 2, nom: "Loup parmi les loups", texte: "Le PJ gagne +1 aux DM lorsqu'il combat un adversaire humanoïde. Ce bonus passe à +2 au rang 4 de cette voie." },
+      { rang: 3, nom: "Enseignement exotique", texte: "Le PJ choisit l'une des formations martiales maîtrisées par son personnage ainsi qu'une tradition d'un des peuples des Terres d'Arran : il peut porter et utiliser uniquement les armes ou armures qu'il maîtrise, forgées dans cette tradition." },
+      { rang: 4, nom: "Versatile", texte: "Le PJ choisit une capacité de rang 1 ou 2 de n'importe quelle voie de profil." },
+      { rang: 5, nom: "Dépassement", texte: "Le PJ augmente la valeur d'une Carac. au choix de +2.", effets: [{ type: "carac", carac: "CHOIX", value: 2 }] },
+    ],
+  },
+  cultures: [
+    {
+      id: "humain_ruines_nordiques",
+      nom: "Humain des ruines nordiques",
+      flavor: "De la Borduria jusqu'au royaume d'Yrlanie et sur l'Ourann. Fiers, marins, guerriers, souvent considérés comme sauvages, ces hommes et femmes ont payé un lourd tribut lors de la malédiction des goules.",
+      voieCulturelle: {
+        nom: "Voie culturelle des ruines nordiques",
+        rangs: [
+          { rang: 1, nom: "Pied marin", texte: "Le PJ obtient un bonus de +5 aux tests de navigation, de natation et d'équilibre." },
+          { rang: 2, nom: "Barbare", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie de la bravoure ou de la voie de la chasse. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Expertise des haches", texte: "Le PJ gagne un bonus de +1 en attaque et aux DM lorsqu'il manie une hache. Il est formé au maniement de la grande hache de bûcheron." },
+          { rang: 4, nom: "Homme des clans", texte: "Le PJ dispose d'un homme de main fidèle qui combat à ses côtés. Grâce à lui, les armes du personnage sont parfaitement entretenues et infligent des critiques sur un résultat de 19 ou 20. Bras droit : DEF 16, PV [niveau x 6], attaque [niveau], DM 1d8+2." },
+          { rang: 5, nom: "Conquérant", texte: "Le PJ augmente ses valeurs de DEX et CON de +2.", effets: [{ type: "carac", carac: "DEX", value: 2 }, { type: "carac", carac: "CON", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "humain_mitan",
+      nom: "Humain du Mitan",
+      flavor: "Royaume de Léhon, cités-États du Tarascon, Lombardie et Ourann septentrional. Communautés civilisées et raffinées : cités portuaires, flottes marchandes, commerce et politique élevés au rang d'art.",
+      voieCulturelle: {
+        nom: "Voie culturelle du Mitan",
+        rangs: [
+          { rang: 1, nom: "Homme des cités", texte: "Le PJ est à l'aise dans les foules et les cités bondées. Il gagne un bonus de +5 pour tous les tests liés à la perception dans une foule, ainsi que pour trouver l'adresse d'une personne ou un lieu précis en zone urbaine." },
+          { rang: 2, nom: "Entre tradition et progrès", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie du combat monté ou de la voie de l'arbalètrie. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Modernisme", texte: "Le PJ gagne un bonus de +1 en attaque et aux DM lorsqu'il manie une arbalète. Il gagne la maîtrise des armes de tir." },
+          { rang: 4, nom: "Conspirateur", texte: "Une fois par aventure, le PJ peut faire appel à un ami ou contact pour en obtenir un service, une information ou sceller une alliance, en réussissant un test de CHA (difficulté 10, 15 ou 20 selon le service demandé)." },
+          { rang: 5, nom: "Maître marchand", texte: "Le PJ augmente ses valeurs d'INT et CHA de +2.", effets: [{ type: "carac", carac: "INT", value: 2 }, { type: "carac", carac: "CHA", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "humain_empires_austraux",
+      nom: "Humain des empires austraux",
+      flavor: "Colonisateurs des Terres du Sud, fondateurs de la cité marchande de Scarande et des empires Assanide et de Dumn. Civilisations évoluées, jugées décadentes par les peuples nordiques.",
+      voieCulturelle: {
+        nom: "Voie culturelle des empires austraux",
+        rangs: [
+          { rang: 1, nom: "Érudition", texte: "Le PJ sait lire et écrire et gagne +5 aux tests relatifs à un domaine de son choix : histoire et géographie, occultisme et magie, sciences et techniques, plantes et créatures ou langues anciennes." },
+          { rang: 2, nom: "Études arcaniques", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie de la magie élémentaliste ou de la voie des illusions. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Autorité culturelle", texte: "Le PJ obtient un bonus de +2 en Initiative et en DEF, ou peut à la place choisir un nouveau domaine d'érudition pour son PJ.", effets: [{ type: "stat", stat: "INIT", value: 2 }, { type: "stat", stat: "DEF", value: 2 }] },
+          { rang: 4, nom: "Prédispositions arcaniques", texte: "Le PJ ajoute son Mod. de CHA à son total de PM (ce bonus n'est pas doublé pour la famille des mystiques)." },
+          { rang: 5, nom: "Mage", texte: "Le PJ augmente ses valeurs d'INT et SAG de +2.", effets: [{ type: "carac", carac: "INT", value: 2 }, { type: "carac", carac: "SAG", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "humain_terres_orientales",
+      nom: "Humain des Terres orientales",
+      flavor: "L'Orient est une des rares régions où les Humains ne se sont pas imposés. Le continent abrite des villes sauvages et dangereuses où règnent le non-droit et la loi du plus fort.",
+      voieCulturelle: {
+        nom: "Voie culturelle des Terres orientales",
+        rangs: [
+          { rang: 1, nom: "Connaissances cosmopolites", texte: "Le PJ gagne un bonus de +5 à tous les tests pour négocier, argumenter, mentir ou convaincre un non-humain." },
+          { rang: 2, nom: "Rejeton de la cité des Sang-mêlés", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie du charme ou de la voie de la fourberie. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Sentir la magie", texte: "En réussissant un test de SAG difficulté 15, le PJ sent si son interlocuteur est versé dans les arts mystiques. Il bénéficie d'un bonus de +5 aux tests visant à résister aux effets magiques." },
+          { rang: 4, nom: "Chevaucheur de dragons", texte: "Le PJ fait l'acquisition d'un dragon d'Akrähyng : Init 15, DEF 16, PV [5 x niveau], Att +8, DM 1d6+4 (trait de feu, portée 20 m). Il gagne un bonus de +5 aux tests de DEX pour les manœuvres aériennes." },
+          { rang: 5, nom: "Expert en filouterie", texte: "Le PJ augmente ses valeurs de DEX et CHA de +2.", effets: [{ type: "carac", carac: "DEX", value: 2 }, { type: "carac", carac: "CHA", value: 2 }] },
+        ],
+      },
+    },
+  ],
+});
+
+
+/* ============================================================
+   TERRES D'ARRAN — Les peuples d'Arran (suite : les Peaux vertes)
+   Particularité : les modificateurs de Carac., l'âge, la taille et
+   le trait spécifique sont définis par culture (et non par peuple),
+   mais la voie de peuple est partagée par les trois cultures.
+   ============================================================ */
+
+const VOIE_PEUPLE_PEAUX_VERTES = {
+  nom: "Voie du peuple des Peaux vertes",
+  rangs: [
+    { rang: 1, nom: "Pour l'honneur", texte: "Le PJ gagne un bonus de +5 aux tests de Carac. pour toute interaction sociale avec d'autres Peaux vertes." },
+    { rang: 2, nom: "Frappe déloyale", texte: "Une fois par adversaire, après avoir manqué une attaque de contact, le PJ peut réaliser une manœuvre (aveugler, désarmer ou repousser) via un test opposé." },
+    { rang: 3, nom: "Maîtrise des armes sauvages", texte: "Le PJ a appris à utiliser au mieux les traditions étranges de son peuple. Il peut porter et utiliser les armes et armures traditionnelles de son peuple pour lesquelles il possède la formation martiale." },
+    { rang: 4, nom: "Croyances païennes", texte: "Le PJ arbore un tatouage mystique : taureau (+5 FOR), ours (+5 CON), panthère (+5 DEX) ou chouette (+5 SAG)." },
+    { rang: 5, nom: "Héros tribal", texte: "Le PJ peut utiliser 1 PC pour annuler un coup critique à son encontre et le transformer en coup normal. Une fois par jour, il peut utiliser 2 PC pour transformer un test réussi à son encontre en échec." },
+  ],
+};
+
+PEUPLES.push({
+  id: "peau_verte",
+  nom: "Peau verte",
+  flavor: "Grand peuple regroupant plusieurs ethnies très différentes (Orcs, Gobelins, Ogres), souvent considérées de la même façon par les autres peuples en raison de la couleur de leur peau.",
+  modificateurs: null, // défini par culture pour ce peuple
+  voiePeuple: VOIE_PEUPLE_PEAUX_VERTES,
+  cultures: [
+    {
+      id: "orc",
+      nom: "Orc",
+      flavor: "Grandes créatures incroyablement musclées, canines inférieures proéminentes. Le clan est au centre de la vie des Orcs, symbole de stabilité et de survie.",
+      modificateurs: { atouts: [{ carac: "FOR", value: 2 }, { carac: "CON", value: 2 }], faiblesses: [{ carac: "INT", value: -2 }, { carac: "CHA", value: -2 }] },
+      age: "15 ans et plus",
+      esperanceVie: "50 ans",
+      taille: "entre 1,70 m et 2,20 m",
+      poids: "entre 70 kg et 170 kg",
+      trait: { nom: "Instinct de survie", texte: "Lorsqu'une attaque devrait amener l'Orc à 0 PV, les DM qu'elle inflige sont divisés par deux (minimum 1)." },
+      voieCulturelle: {
+        nom: "Voie culturelle des Orcs",
+        rangs: [
+          { rang: 1, nom: "Force de la nature", texte: "Le PJ gagne un bonus de +5 à tous les tests de FOR et ajoute son [Mod. de FOR] à son score total de PV.", effets: [{ type: "statParCarac", stat: "PV", carac: "FOR" }] },
+          { rang: 2, nom: "Talent pour la violence", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie de la férocité ou de la voie de la puissance. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Critique brutal", texte: "Les DM du PJ sont multipliés par 3 (au lieu de 2) lorsqu'il obtient une réussite critique sur une attaque au contact." },
+          { rang: 4, nom: "Attaque sanglante (L)", texte: "Le PJ réalise une attaque de contact violente qui provoque une hémorragie : +1d6 DM chaque tour suivant jusqu'à un test de CON réussi [difficulté 12 + Mod. FOR] ou un soin." },
+          { rang: 5, nom: "Colosse", texte: "Le PJ augmente ses valeurs de FOR et de CON de +2.", effets: [{ type: "carac", carac: "FOR", value: 2 }, { type: "carac", carac: "CON", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "gobelin",
+      nom: "Gobelin",
+      flavor: "Petits, frêles mais rusés. Organisés en tribus, capables de mener des guérillas mortelles. De nombreux Gobelins ont quitté la vie tribale pour des carrières de brigand ou de voleur en ville.",
+      modificateurs: { atouts: [{ carac: "DEX", value: 2 }, { carac: "INT", value: 2 }], faiblesses: [{ carac: "FOR", value: -2 }, { carac: "CON", value: -2 }] },
+      age: "12 ans et plus",
+      esperanceVie: "30 ans",
+      taille: "entre 1,00 m et 1,20 m",
+      poids: "entre 20 kg et 40 kg",
+      trait: { nom: "Vision dans le noir", texte: "Dans le noir total, le Gobelin voit comme dans la pénombre à 30 m." },
+      voieCulturelle: {
+        nom: "Voie culturelle des Gobelins",
+        rangs: [
+          { rang: 1, nom: "Insignifiant", texte: "Une fois par combat, le PJ peut reporter l'attention d'un assaillant sur une autre cible ennemie. Il bénéficie d'un bonus de +5 à tous les tests visant à se fondre dans la masse." },
+          { rang: 2, nom: "Agile et sournois", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie de l'acrobatie ou de la voie de l'assassinat. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Ombre mouvante (L)", texte: "En réussissant un test de DEX difficulté 10, le PJ peut se déplacer jusqu'à une zone ténébreuse et disparaître à son tour, réapparaissant au tour suivant avec un bonus de +2d6 DM s'il a l'initiative." },
+          { rang: 4, nom: "Rochassier", texte: "Le PJ peut se mouvoir sur les surfaces verticales avec la même aisance que sur une surface horizontale." },
+          { rang: 5, nom: "Teigneux", texte: "Le PJ augmente ses valeurs de DEX et de INT de +2.", effets: [{ type: "carac", carac: "DEX", value: 2 }, { type: "carac", carac: "INT", value: 2 }] },
+        ],
+      },
+    },
+    {
+      id: "ogre",
+      nom: "Ogre",
+      flavor: "Parmi les humanoïdes les plus grands et puissants des Terres d'Arran. Massifs, musclés, arborant de larges cornes. Rarement aperçus en dehors des régions du sud, de l'Orient ou des frontières orientales de l'Ourann.",
+      modificateurs: { atouts: [{ carac: "CON", value: 4 }, { carac: "FOR", value: 2 }], faiblesses: [{ carac: "DEX", value: -4 }, { carac: "INT", value: -2 }, { carac: "CHA", value: -2 }] },
+      age: "15 ans et plus",
+      esperanceVie: "60 ans",
+      taille: "entre 2,00 m et 2,50 m",
+      poids: "entre 200 kg et 340 kg",
+      trait: { nom: "Endurant", texte: "Le maximum de PR de l'Ogre est de 6, et non de 5 comme pour les autres peuples." },
+      prMax: 6,
+      voieCulturelle: {
+        nom: "Voie culturelle des Ogres",
+        rangs: [
+          { rang: 1, nom: "Énorme", texte: "Le PJ peut manier d'une seule main les grandes armes nécessitant normalement deux mains, avec un malus de -2 aux tests d'attaque." },
+          { rang: 2, nom: "Brute", texte: "Le PJ choisit une capacité de rang 1 ou 2 de la voie de la férocité ou de la voie du pugilat. Au rang 4 de cette voie, il gagne une capacité supplémentaire de rang 1 ou 2 dans l'une de ces deux voies." },
+          { rang: 3, nom: "Attaque massive (L)", texte: "Le PJ réalise une attaque de tout son poids : bonus aux DM égal à son [Mod. CON] et malus de DEF égal à son [Mod. CON] pendant un tour." },
+          { rang: 4, nom: "Intuable", texte: "Au moment de tomber à 0 PV, le PJ peut continuer à se battre, ses PV étant décomptés négativement jusqu'à un montant égal à sa valeur de Constitution, au-delà duquel il meurt." },
+          { rang: 5, nom: "Monstre", texte: "Le PJ augmente ses valeurs de FOR et de CON de +2.", effets: [{ type: "carac", carac: "FOR", value: 2 }, { type: "carac", carac: "CON", value: 2 }] },
+        ],
+      },
+    },
+  ],
+});
+
+
+/* ============================================================
+   TERRES D'ARRAN — Compendium des voies (chapitre 5)
+   Famille des combattants — 10 voies de profil
+   ============================================================ */
+
+const VOIES_PROFIL = [];
+
+VOIES_PROFIL.push(
+  {
+    id: "voie_bastion",
+    nom: "Voie du bastion",
+    famille: "combattant",
+    prerequis: "Pour utiliser les capacités suivantes, le PJ doit obligatoirement manier un bouclier.",
+    rangs: [
+      { rang: 1, nom: "Protéger un allié", texte: "Le PJ accorde le Mod. de DEF de son bouclier à un compagnon de son choix juste à côté de lui (il conserve ce bonus pour lui-même aussi). Action gratuite. Capacité avancée : peut protéger deux compagnons en même temps." },
+      { rang: 2, nom: "Absorber un coup (L)", texte: "Lors de son tour, le PJ fait seulement une action d'attaque ou de déplacement. Il peut ensuite effectuer un test d'attaque au contact en opposition à une attaque adverse : en cas de réussite, l'attaque est bloquée par le bouclier. Capacité avancée : bonus de +2 au test." },
+      { rang: 3, nom: "Coup de bouclier", texte: "Le PJ peut effectuer à chaque tour une attaque au bouclier avec un d12 au lieu du d20 (action gratuite) qui inflige [1d4 + Mod. de FOR] DM." },
+      { rang: 4, nom: "Absorber un sort (L)", texte: "Le PJ peut effectuer un test d'attaque magique en opposition à un test d'attaque magique qui le visait. En cas de réussite, le sort est absorbé par le bouclier et n'a aucun effet sur le PJ." },
+      { rang: 5, nom: "Armure lourde", texte: "Le PJ peut porter une armure de plaques (DEF +7) et est protégé des attaques critiques (DM normaux au lieu de DM doublés)." },
+    ],
+  },
+  {
+    id: "voie_bravoure",
+    nom: "Voie de la bravoure",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Robustesse", texte: "Le PJ gagne 3 PV supplémentaires au rang 1, puis 3 PV de plus au rang 3 et enfin 3 PV au rang 5. Capacité avancée : le bonus de PV passe à 4.", effets: [{ type: "stat", stat: "PV", value: 3 }] },
+      { rang: 2, nom: "Armure naturelle", texte: "Le PJ a endurci son corps. Il bénéficie d'un bonus de +2 à la DEF. Capacité avancée : le bonus de DEF augmente de +1.", effets: [{ type: "stat", stat: "DEF", value: 2 }] },
+      { rang: 3, nom: "Prouesse", texte: "Une fois par tour, le PJ peut sacrifier 1d4 PV pour obtenir +5 sur un test de FOR ou de DEX, après avoir pris connaissance du résultat." },
+      { rang: 4, nom: "Dernier rempart (L)", texte: "Le PJ effectue uniquement une attaque au contact ce tour, mais bénéficie d'une attaque supplémentaire contre tout ennemi qui se déplace pour venir à son contact (déplacement stoppé en cas de succès)." },
+      { rang: 5, nom: "Constitution héroïque", texte: "Le PJ augmente son score de CON de +2 et peut lancer deux d20 à chaque test de CON, gardant le meilleur résultat.", effets: [{ type: "carac", carac: "CON", value: 2 }] },
+    ],
+  },
+  {
+    id: "voie_combat_deux_armes",
+    nom: "Voie du combat à deux armes",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Combat à deux armes (L)", texte: "Le PJ effectue une attaque de chaque main (1d20 pour la main directrice, 1d12 pour l'autre bras avec une arme légère, 1d6 de DM maxi). Capacité avancée : avec deux armes légères, bonus de +1 en attaque." },
+      { rang: 2, nom: "Parade croisée (L)", texte: "Au cours d'un tour complet, le PJ obtient un bonus en DEF de +2 mais ne réalise qu'une attaque. Capacité avancée : le bonus de DEF passe à +4.", effets: [{ type: "stat", stat: "DEF", value: 2 }] },
+      { rang: 3, nom: "Symétrie", texte: "Le PJ n'est plus obligé de manier une arme légère dans sa main secondaire (jusqu'à un d8). Avec deux armes légères, il gagne un bonus de +1 en attaque." },
+      { rang: 4, nom: "Double peine", texte: "Si les deux armes du PJ atteignent la cible lors d'un même tour, il obtient un effet de combo qui ajoute +1d6 DM à l'une des deux attaques selon son choix." },
+      { rang: 5, nom: "Combat à deux armes parfait", texte: "Le combat à deux armes (et la parade croisée) ne nécessite plus qu'une action d'attaque au lieu d'une action limitée." },
+    ],
+  },
+  {
+    id: "voie_combat_monte",
+    nom: "Voie du combat monté",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Fidèle monture", texte: "Le PJ possède un puissant destrier (cheval de guerre ou cochon de combat). À dos de monture, il peut ajouter un déplacement de 10 m avant ou après une action normale. Monture : FOR +4, DEX +0, CON +4, INT -2, Init. 10, DEF 13, PV 15, ruade +5, DM 1d6+4." },
+      { rang: 2, nom: "Cavalier émérite", texte: "En selle, le PJ gagne un bonus de +2 en attaque au contact et partage sa DEF avec celle de sa monture (meilleur score conservé). Monter/descendre devient une action gratuite. Capacité avancée : bonus de +2 aux DM en selle.", effets: [{ type: "stat", stat: "ATK_CONTACT", value: 2 }] },
+      { rang: 3, nom: "Massacrer la piétaille", texte: "En selle, le PJ ajoute +1d6 aux DM contre la piétaille (au moins quatre créatures aux statistiques semblables impliquées dans le combat)." },
+      { rang: 4, nom: "Charge (L)", texte: "À monture, le PJ effectue un déplacement de 40 m en ligne droite et une attaque de contact au moment de son choix : deux d20 en attaque (garde le meilleur) et +1d6 aux DM." },
+      { rang: 5, nom: "Monture fantastique", texte: "Le PJ obtient une monture volante (aspic, dragon, guivre, griffon ou wampür) : FOR +4, DEX +2, CON +4, INT -2, SAG +1, Init. 15, DEF 16, PV [5 x niveau], attaque +8, DM 1d6+4. Vol : 30 m par action de mouvement." },
+    ],
+  },
+  {
+    id: "voie_commandement",
+    nom: "Voie du commandement",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Action concertée", texte: "Une fois par tour, le PJ peut échanger son initiative avec un autre PJ volontaire. S'il cède son initiative à un PJ plus lent, il gagne +1 sur ses tests d'attaque ce tour (+2 au rang 4). Capacité avancée : +1 supplémentaire." },
+      { rang: 2, nom: "À couvert (L)", texte: "Jusqu'à son prochain tour, le PJ divise par deux les DM dus aux attaques à distance et de zone qu'il reçoit, et peut se déplacer de 20 m. Capacité avancée : jusqu'à [Mod. CHA] compagnons (min. 1) en profitent aussi." },
+      { rang: 3, nom: "Exemplaire", texte: "Une fois par tour, le PJ permet à un allié combattant le même adversaire de relancer le d20 d'un test d'attaque raté." },
+      { rang: 4, nom: "Ordre de bataille", texte: "Une fois par tour, le PJ octroie une action supplémentaire gratuite à un allié en vue (mouvement ou attaque, mais pas une action limitée)." },
+      { rang: 5, nom: "Charge fantastique (L)", texte: "Une fois par combat, à l'initiative du PJ, lui-même et tous ses alliés en vue bénéficient d'un déplacement de 20 m suivi d'une attaque avec un bonus de +3 et +1d6 aux dégâts." },
+    ],
+  },
+  {
+    id: "voie_ferocite",
+    nom: "Voie de la férocité",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Cri de guerre", texte: "Une fois par combat, le PJ pousse un hurlement qui effraie ses adversaires : tout ennemi dont la FOR ou les PV maximaux sont inférieurs aux siens subit -2 à ses tests d'attaque au contact contre le PJ pour le reste du combat. Capacité avancée : action de mouvement au lieu d'action d'attaque." },
+      { rang: 2, nom: "Charge (L)", texte: "Le PJ se déplace en ligne droite d'au moins 5 m (20 m max) et effectue une attaque au contact avec +2 en attaque et +1d6 aux DM. Capacité avancée : +1 supplémentaire en attaque et aux DM." },
+      { rang: 3, nom: "Rage du berserk (L)", texte: "Le PJ entre en rage pour le reste du combat : +2 en attaque et +1d6 aux DM au contact, mais -4 en DEF et impossibilité de fuir ou d'attaquer à distance. Pour arrêter, test de SAG difficulté 13." },
+      { rang: 4, nom: "Même pas mal", texte: "Lorsqu'il subit un coup critique, le PJ peut immédiatement entrer en rage (action gratuite) et gagne +1d6 aux DM au contact pour les trois prochains tours." },
+      { rang: 5, nom: "Attaque tourbillon (L)", texte: "Une fois par combat, le PJ tourne sur lui-même en assénant des attaques à toutes les cibles au contact dans un rayon de 5 m, infligeant automatiquement les DM de son arme (+ bonus habituels)." },
+    ],
+  },
+  {
+    id: "voie_guerre",
+    nom: "Voie de la guerre",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Posture de combat", texte: "Au début de son tour, le PJ peut appliquer jusqu'à -1 par rang atteint dans cette voie en attaque, DEF ou DM pour obtenir l'équivalent en bonus au choix jusqu'à son prochain tour. Capacité avancée : peut aussi accorder le bonus à l'initiative." },
+      { rang: 2, nom: "Désarmer (L)", texte: "Le PJ réalise une attaque au contact et sa victime fait un test d'attaque opposé. En cas de succès, l'arme de l'adversaire tombe au sol. Avec 10 points d'écart, l'adversaire ne peut pas la récupérer facilement. Capacité avancée : action d'attaque au lieu d'action limitée." },
+      { rang: 3, nom: "Double attaque (L)", texte: "Le PJ peut tenter deux attaques au contact ce tour, avec un malus de -2 à chacune." },
+      { rang: 4, nom: "Attaque circulaire (L)", texte: "Le PJ peut tenter une attaque au contact contre chaque adversaire engagé au contact avec lui." },
+      { rang: 5, nom: "Attaque puissante", texte: "Le PJ peut utiliser 1d12 en attaque au contact au lieu du d20 habituel ; si l'attaque est réussie, +2d6 aux DM. Combinable avec Double attaque ou Attaque circulaire." },
+    ],
+  },
+  {
+    id: "voie_maitrise_armes",
+    nom: "Voie de la maîtrise des armes",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Arme de prédilection", texte: "Le PJ choisit une arme de prédilection et gagne +1 en attaque lorsqu'il l'utilise. Capacité avancée : choisit une seconde arme familière (+1 en attaque, sans le bonus de Spécialisation).", effets: [] },
+      { rang: 2, nom: "Science du critique", texte: "Le PJ inflige des critiques sur un résultat de 19 ou 20 (18 à 20 avec une rapière). Capacité avancée : +1d6 aux DM sur un coup critique." },
+      { rang: 3, nom: "Spécialisation", texte: "Lorsque le PJ emploie son arme de prédilection, il gagne un bonus de +2 aux DM." },
+      { rang: 4, nom: "Attaque parfaite (L)", texte: "Le PJ lance deux d20 en attaque au contact et garde le meilleur résultat ; ajoute +1d6 aux DM." },
+      { rang: 5, nom: "Riposte", texte: "Une fois par tour, lorsqu'un adversaire rate une attaque de contact contre le PJ, ce dernier obtient une attaque supplémentaire gratuite contre cet adversaire." },
+    ],
+  },
+  {
+    id: "voie_pugilat",
+    nom: "Voie du pugilat",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Poings de fer", texte: "À mains nues, le PJ peut utiliser son score d'attaque à distance au lieu de celui au contact. Il inflige [1d6 + Mod. FOR] DM létaux (1d8 au rang 3, 1d10 au rang 5). Capacité avancée : le dé de DM augmente d'une catégorie, jusqu'au d12." },
+      { rang: 2, nom: "Peau de pierre", texte: "Le PJ reçoit un bonus de DEF égal à son Mod. de CON. Capacité avancée : bonus de DEF = [Mod. CON +1].", effets: [{ type: "statParCarac", stat: "DEF", carac: "CON" }] },
+      { rang: 3, nom: "Peau d'acier", texte: "Le PJ ne sent plus la douleur et réduit tous les DM subis de 2 points (toujours au moins 1 point de DM par attaque)." },
+      { rang: 4, nom: "Déluge de coups (L)", texte: "Le PJ peut effectuer deux attaques à mains nues ou avec une arme, ou trois attaques en utilisant un d12 en attaque pour chacune (au lieu d'un d20)." },
+      { rang: 5, nom: "Force héroïque", texte: "Le PJ augmente son score de FOR de +2 et peut lancer deux d20 à chaque test de FOR, gardant le meilleur résultat.", effets: [{ type: "carac", carac: "FOR", value: 2 }] },
+    ],
+  },
+  {
+    id: "voie_puissance",
+    nom: "Voie de la puissance",
+    famille: "combattant",
+    rangs: [
+      { rang: 1, nom: "Argument de taille", texte: "Le PJ ajoute son Mod. de FOR à son score de PV maximal ainsi qu'à ses tests de CHA et à ceux de ses alliés au contact (négociation, persuasion, intimidation). Capacité avancée : Mod. de FOR ajouté une seconde fois au PV maximal au rang 4.", effets: [{ type: "statParCarac", stat: "PV", carac: "FOR" }] },
+      { rang: 2, nom: "Tour de force", texte: "Le PJ obtient un bonus de +10 à son test de FOR mais cela lui coûte 1d4 PV. Capacité avancée : une fois par combat, +2d6 DM pour 2d4 PV." },
+      { rang: 3, nom: "Attaque brutale (L)", texte: "Le PJ réalise une attaque au contact avec -2 en attaque et +1d6 aux DM. Au rang 5, il peut choisir -5 pour +2d6 aux DM." },
+      { rang: 4, nom: "Briseur d'os", texte: "Le PJ obtient un critique sur 19 ou 20 au contact. Un critique inflige en plus une pénalité de -2 à tous les tests d'attaque, de FOR et de DEX de sa victime jusqu'à guérison complète." },
+      { rang: 5, nom: "Vitalité débordante", texte: "Tant qu'il lui reste au moins 1 PV, le PJ récupère 1d6 PV par heure, de nuit comme de jour." },
+    ],
+  },
+);
+
+
+/* ============================================================
+   TERRES D'ARRAN — Compendium des voies (chapitre 5)
+   Famille des aventuriers — 10 voies de profil
+   ============================================================ */
+
+VOIES_PROFIL.push(
+  {
+    id: "voie_acrobatie",
+    nom: "Voie de l'acrobatie",
+    famille: "aventurier",
+    rangs: [
+      { rang: 1, nom: "Acrobate", texte: "Le PJ obtient un bonus de +5 à tous ses tests de DEX visant à réaliser des acrobaties, conserver son équilibre, faire des sauts ou de l'escalade. Capacité avancée : le bonus passe à +10." },
+      { rang: 2, nom: "Grâce féline", texte: "Le PJ ajoute son Mod. de CHA en DEF et en initiative (en plus du Mod. habituel de DEX). Capacité avancée : ajoute aussi son Mod. de CHA aux tests de discrétion et d'esquive.", effets: [{ type: "statParCarac", stat: "DEF", carac: "CHA" }, { type: "statParCarac", stat: "INIT", carac: "CHA" }] },
+      { rang: 3, nom: "Lanceur de couteau", texte: "Une fois par tour, en plus de ses autres actions, le PJ peut lancer un couteau ou une dague sur une cible à distance (portée 10 m) en action gratuite, infligeant [1d4 + Mod. DEX] DM." },
+      { rang: 4, nom: "Esquive acrobatique", texte: "Une fois par tour, le PJ peut réaliser une esquive en réussissant un test d'attaque à distance contre la difficulté du score d'attaque adverse. En cas de réussite, aucun DM (même un critique devient un DM normal)." },
+      { rang: 5, nom: "Dextérité héroïque", texte: "Le PJ augmente son score de DEX de +2 et peut lancer deux d20 à chaque test de DEX, gardant le meilleur résultat.", effets: [{ type: "carac", carac: "DEX", value: 2 }] },
+    ],
+  },
+  {
+    id: "voie_arbaletrie",
+    nom: "Voie de l'arbalètrie",
+    famille: "aventurier",
+    prerequis: "Pour utiliser les capacités suivantes, le PJ doit obligatoirement manier une arme de tir.",
+    rangs: [
+      { rang: 1, nom: "Joli coup !", texte: "Le PJ ignore les pénalités normalement appliquées lorsque la cible est à couvert (généralement -2 à -5). Capacité avancée : +1 aux DM de l'arme à portée optimale." },
+      { rang: 2, nom: "Cadence de tir", texte: "Recharger une arbalète lourde devient une action de mouvement (gratuite pour une arbalète de poing ou légère). À partir du rang 5, le PJ peut recharger deux armes en une seule action. Capacité avancée : tir possible au rang d'initiative +5 si l'arme est déjà chargée." },
+      { rang: 3, nom: "Tir double (L)", texte: "Le PJ tire avec une arbalète de poing dans chaque main sans pénalité. Sur une même cible, un seul test à +2 en attaque (DM séparés)." },
+      { rang: 4, nom: "As de la gâchette", texte: "Lorsqu'il atteint une DEF de 25 ou plus à son attaque à distance avec une arbalète, le PJ ajoute +1d6 aux DM de son attaque." },
+      { rang: 5, nom: "Tir mortel", texte: "Pour une attaque à distance, le PJ peut utiliser un d12 au lieu du d20 habituel ; si l'attaque est réussie, +2d6 aux DM. Combinable avec Tir double et As de la gâchette." },
+    ],
+  },
+  {
+    id: "voie_archerie",
+    nom: "Voie de l'archerie",
+    famille: "aventurier",
+    rangs: [
+      { rang: 1, nom: "Sens affûtés", texte: "Le PJ gagne un bonus de +5 à tous ses tests de SAG sollicitant la perception. Il ajoute son Mod. de SAG aux dégâts qu'il inflige avec un arc. Capacité avancée : ajoute aussi son bonus de SAG à l'initiative." },
+      { rang: 2, nom: "Tir aveugle (L)", texte: "Le PJ peut attaquer à distance un ennemi qu'il ne voit pas mais dont il connaît l'existence et la position approximative, sans le malus habituel. Capacité avancée : action d'attaque au lieu d'action limitée." },
+      { rang: 3, nom: "Tir rapide (L)", texte: "Le PJ peut porter deux attaques à distance pendant ce tour." },
+      { rang: 4, nom: "Flèche de mort (L)", texte: "Le PJ lance deux d20 pour son attaque et conserve le meilleur résultat ; les dégâts de la flèche sont doublés." },
+      { rang: 5, nom: "Dans le mille", texte: "Pour une attaque à distance, le PJ peut utiliser 1d12 en attaque au lieu du d20 habituel ; si l'attaque est réussie, +2d6 aux DM. Combinable avec Tir rapide ou Flèche de mort (non doublé)." },
+    ],
+  },
+  {
+    id: "voie_assassinat",
+    nom: "Voie de l'assassinat",
+    famille: "aventurier",
+    prerequis: "Pour utiliser les capacités de rang 2 et supérieurs, le PJ doit obligatoirement manier une arme de duel ou une dague.",
+    rangs: [
+      { rang: 1, nom: "Discrétion", texte: "Quand il essaie de passer inaperçu, le PJ bénéficie d'un bonus de +5 à son test de DEX. Capacité avancée : le bonus passe à +10." },
+      { rang: 2, nom: "Attaque sournoise (L)", texte: "Quand il attaque un adversaire dans le dos ou par surprise, le PJ inflige 1d6 de DM supplémentaires par rang atteint dans cette voie (non multipliés en cas de critique). Capacité avancée : utilisable une fois par combat sur un adversaire moins rapide, à l'aide d'une arme de jet ou de dague de jet." },
+      { rang: 3, nom: "Frappe chirurgicale", texte: "Le PJ retranche de manière permanente son Mod. d'INT au score nécessaire pour obtenir un critique en attaque au contact." },
+      { rang: 4, nom: "Surprise", texte: "Le PJ n'est jamais surpris. Il peut réaliser une Attaque sournoise avec une action d'attaque plutôt qu'une action limitée contre un adversaire surpris." },
+      { rang: 5, nom: "Botte secrète", texte: "Lorsque le PJ obtient un critique sur une attaque au contact, l'attaque devient automatiquement une Attaque sournoise, dont les effets s'appliquent en plus des effets normaux du critique." },
+    ],
+  },
+  {
+    id: "voie_boheme",
+    nom: "Voie du bohème",
+    famille: "aventurier",
+    rangs: [
+      { rang: 1, nom: "Rumeurs et légendes", texte: "Le PJ obtient un bonus de +5 aux tests d'INT pour se « souvenir » d'une information historique, politique, géographique ou occulte, y compris pour identifier des objets légendaires. Capacité avancée : le bonus passe à +10." },
+      { rang: 2, nom: "Argumenter", texte: "Le PJ obtient un bonus de +5 aux tests de CHA visant à convaincre. Capacité avancée : le bonus s'applique aussi pour tromper, mentir ou séduire (non cumulable avec Charmant)." },
+      { rang: 3, nom: "Débrouillard", texte: "Le PJ obtient un bonus de +5 à tous ses tests de survie en nature et aux tests de profession et d'artisanat." },
+      { rang: 4, nom: "Déguisement", texte: "Le PJ parvient à prendre l'apparence de n'importe quelle créature de taille à peu près équivalente (± 50 cm). Vingt minutes de préparation, deux heures d'efficacité ; test opposé CHA/SAG en cas d'examen minutieux." },
+      { rang: 5, nom: "Touche-à-tout", texte: "Le PJ peut choisir n'importe quelle capacité de rang 1 à 3 au sein d'une autre voie de combattant ou d'aventurier, et peut en faire une capacité avancée (rang 1 ou 2 uniquement)." },
+    ],
+  },
+  {
+    id: "voie_charme",
+    nom: "Voie du charme",
+    famille: "aventurier",
+    rangs: [
+      { rang: 1, nom: "Charmant", texte: "Le PJ obtient un bonus de +5 pour tous ses tests de CHA visant à séduire, baratiner ou mentir. Capacité avancée : le bonus passe à +10." },
+      { rang: 2, nom: "Provocation (L)", texte: "Par un test opposé de CHA contre l'INT de la victime, le PJ peut forcer celle-ci à l'attaquer ce tour, et peut immédiatement riposter par une attaque gratuite. Capacité avancée : si la cible le rate, double les DM de l'attaque gratuite." },
+      { rang: 3, nom: "Attaque flamboyante (L)", texte: "Le PJ effectue une attaque de contact avec un bonus d'attaque et de DM égal à son Mod. de CHA (en plus du Mod. de FOR ou DEX)." },
+      { rang: 4, nom: "Suggestion (L)", texte: "Une fois par jour, le PJ peut suggérer une action à une créature en réussissant un test opposé de CHA contre la SAG de sa cible : elle fera tout son possible pour la satisfaire pendant 24 h." },
+      { rang: 5, nom: "Charisme héroïque", texte: "Le PJ augmente sa valeur de CHA de +2 et peut lancer deux d20 à chaque test de CHA, gardant le meilleur résultat.", effets: [{ type: "carac", carac: "CHA", value: 2 }] },
+    ],
+  },
+  {
+    id: "voie_chasse",
+    nom: "Voie de la chasse",
+    famille: "aventurier",
+    rangs: [
+      { rang: 1, nom: "Proche de la nature", texte: "Le PJ obtient un bonus de +5 aux tests de survie, de discrétion ou d'observation en milieu naturel. Capacité avancée : le bonus passe à +10." },
+      { rang: 2, nom: "Nature nourricière", texte: "Si le PJ passe une heure en forêt, il trouve de quoi nourrir deux personnes par rang atteint dans cette voie, ou des plantes médicinales soignant 1d6 PV par rang. Capacité avancée : applicable à un autre environnement (plaine, montagne, marais, désert)." },
+      { rang: 3, nom: "Attaque éclair (L)", texte: "Le PJ peut effectuer une attaque au contact très percutante : il ajoute son Mod. de DEX en attaque et aux DM pour cette offensive." },
+      { rang: 4, nom: "Ennemis jurés", texte: "Après avoir tué une créature, le PJ peut décider que tous ceux de sa race sont devenus des ennemis jurés : bonus égal à son Mod. de SAG en attaque et +1d6 DM contre eux. Second ennemi juré possible au niveau 8." },
+      { rang: 5, nom: "Perception héroïque", texte: "Le PJ augmente sa valeur de SAG de +2 et peut lancer deux d20 à chaque test de SAG, gardant le meilleur résultat.", effets: [{ type: "carac", carac: "SAG", value: 2 }] },
+    ],
+  },
+  {
+    id: "voie_compagnon_animal",
+    nom: "Voie du compagnon animal",
+    famille: "aventurier",
+    prerequis: "L'aventurier obtient un loup pour compagnon animal dès qu'il acquiert au moins un rang dans cette voie.",
+    rangs: [
+      { rang: 1, nom: "Odorat", texte: "Le loup du PJ détecte les odeurs des animaux et créatures. Le PJ obtient un bonus de +5 aux tests de SAG pour pister et suivre des traces. Capacité avancée : le loup aide aussi à débusquer les faux-semblants et illusions." },
+      { rang: 2, nom: "Surveillance", texte: "Le loup est constamment sur ses gardes : bonus de +5 pour les tests de surprise (SAG) et en initiative. S'il n'est pas surpris, attaque simple à distance avant le premier tour de combat. Capacité avancée : le PJ ne peut plus être surpris." },
+      { rang: 3, nom: "Attaque éclair (L)", texte: "Le PJ peut effectuer une attaque au contact très percutante en ajoutant son Mod. de DEX en attaque et aux DM." },
+      { rang: 4, nom: "Combat", texte: "Le loup combat comme un véritable personnage, en même temps que le PJ. Loup : Init. 13, DEF 14, PV [niveau x 4], attaque = [niveau du PJ], DM 1d6+1." },
+      { rang: 5, nom: "Animal fabuleux", texte: "Le loup devient un mâle alpha : Init. 13, DEF 16, PV [niveau x 4], attaque = [niveau + 2], DM 1d6+3, FOR +3." },
+    ],
+  },
+  {
+    id: "voie_escrime",
+    nom: "Voie de l'escrime",
+    famille: "aventurier",
+    rangs: [
+      { rang: 1, nom: "Attaque en finesse", texte: "Le PJ peut utiliser son score d'attaque à distance pour porter une attaque au contact avec une arme de duel ou une dague. Capacité avancée : peut appliquer le bonus de DEF d'une main gauche contre les attaques à distance." },
+      { rang: 2, nom: "Intelligence du combat", texte: "Le PJ ajoute son Mod. d'INT en initiative et en DEF, en plus de son Mod. de DEX. Capacité avancée : peut remplacer le Mod. de FOR aux DM par son Mod. d'INT.", effets: [{ type: "statParCarac", stat: "DEF", carac: "INT" }, { type: "statParCarac", stat: "INIT", carac: "INT" }] },
+      { rang: 3, nom: "Feinte (L)", texte: "Le PJ effectue une attaque fictive sans DM. Au tour suivant contre le même adversaire, bonus de +5 en attaque et, si la feinte était réussie, +2d6 aux DM (+10 en attaque au rang 5)." },
+      { rang: 4, nom: "Ambidextrie", texte: "Le PJ peut utiliser une arme de duel ou une dague dans chaque main sans pénalité, avec une attaque au contact gratuite supplémentaire de la main faible." },
+      { rang: 5, nom: "Botte mortelle", texte: "Si son score total d'attaque au contact dépasse la DEF de l'adversaire d'au moins 10 points, le PJ obtient un bonus de +2d6 aux DM." },
+    ],
+  },
+  {
+    id: "voie_fourberie",
+    nom: "Voie de la fourberie",
+    famille: "aventurier",
+    rangs: [
+      { rang: 1, nom: "Doigts agiles", texte: "Le PJ reçoit un bonus de +5 pour tous ses tests de DEX liés à la précision : crocheter une serrure, désamorcer un piège, faire les poches de quelqu'un. Capacité avancée : le bonus passe à +10." },
+      { rang: 2, nom: "Détecter les pièges", texte: "En réussissant un test d'INT difficulté 10 (15 pour un piège magique), le PJ détecte et contourne les pièges avant qu'ils ne se déclenchent. Capacité avancée : détection automatique des pièges non magiques." },
+      { rang: 3, nom: "Croc-en-jambe", texte: "Lorsqu'il obtient un score de 17 à 20 sur son d20 en attaque au contact, le PJ fait chuter son adversaire en plus de lui infliger des DM normaux (19-20 pour un quadrupède)." },
+      { rang: 4, nom: "Attaque paralysante (L)", texte: "Une fois par combat, en réussissant une attaque de contact, le PJ paralyse l'adversaire de douleur pendant 1d4 tours (sans DM)." },
+      { rang: 5, nom: "Attaque en traître", texte: "Une fois par tour, lorsqu'un allié réussit à blesser une créature au contact du PJ, celui-ci peut lui porter une attaque normale gratuite." },
+    ],
+  },
+);
+
+
+/* ============================================================
+   TERRES D'ARRAN — Compendium des voies (chapitre 5)
+   Famille des mystiques — 10 voies de profil
+   Note : les capacités suivies d'un astérisque (*) dans le livre
+   sont des sorts consommant des PM (sauf les talents magiques).
+   ============================================================ */
+
+VOIES_PROFIL.push(
+  {
+    id: "voie_alchimie",
+    nom: "Voie de l'alchimie",
+    famille: "mystique",
+    prerequis: "Chaque jour, le PJ peut créer jusqu'à deux élixirs par rang atteint dans cette voie. Produire un lot d'élixirs prend une heure ; ils deviennent inopérants après 24 h.",
+    rangs: [
+      { rang: 1, nom: "Fortifiant", texte: "Un breuvage qui guérit [1d4 + rang] PV et permet de gagner +3 sur les [rang + 1] prochains tests (limite 12 h). Action de mouvement pour le boire. Capacité avancée : deux fortifiants supplémentaires par jour." },
+      { rang: 2, nom: "Feu grégeois", texte: "Le PJ lance la fiole à 10 m (réussite automatique). Explosion dans un rayon de 3 m infligeant 1d6 DM par rang atteint. Test de DEX difficulté [10 + Mod. INT] pour diviser les DM par deux. Capacité avancée : flammes persistantes un tour, 1 DM de feu par rang." },
+      { rang: 3, nom: "Huile instable", texte: "Appliquée sur une arme (action limitée), elle donne +1d6 DM de feu pendant [5 + Mod. INT] minutes. Peut aussi enflammer environ cinq projectiles par dose." },
+      { rang: 4, nom: "Élixir de guérison", texte: "Le PJ peut préparer un élixir qui soigne [3d6 + Mod. INT] PV, un empoisonnement ou une hémorragie." },
+      { rang: 5, nom: "Élixirs de protection", texte: "Le PJ peut préparer une potion de Peau d'écorce, d'Image décalée ou de Protection contre les éléments. Les effets de ces potions ne sont pas cumulables entre eux." },
+    ],
+  },
+  {
+    id: "voie_arts_druidiques",
+    nom: "Voie des arts druidiques",
+    famille: "mystique",
+    rangs: [
+      { rang: 1, nom: "Langage des animaux", texte: "Le PJ peut communiquer avec les animaux, qui se comportent en général avec lui de manière amicale. Bonus de +5 à tous les tests destinés à influencer un animal. Capacité avancée : conversation poussée via un test d'INT difficulté 20." },
+      { rang: 2, nom: "Nuée d'insectes*", texte: "Test d'attaque magique (portée 20 m) : nuée d'insectes qui piquent et aveuglent la cible pendant [5 + Mod. SAG] tours (1 DM par tour, -2 à toutes ses actions). Capacité avancée : 2 DM par tour et -3 aux actions." },
+      { rang: 3, nom: "Le guetteur", texte: "Le PJ reçoit un oiseau de proie comme compagnon animal, avec lien télépathique (bonus de +5 aux tests de perception). Oiseau : Init. 15, DEF 15, PV [niveau x 3], DM 1d4." },
+      { rang: 4, nom: "Masque du prédateur*", texte: "Le PJ prend les traits d'un fauve ou d'un loup : Mod. d'INT en initiative, attaque et DM, et vision nocturne pendant [5 + Mod. SAG] tours." },
+      { rang: 5, nom: "Sagesse héroïque", texte: "Le PJ augmente son score de SAG de +2 et peut lancer deux d20 à chaque test de SAG, gardant le meilleur résultat.", effets: [{ type: "carac", carac: "SAG", value: 2 }] },
+    ],
+  },
+  {
+    id: "voie_divination",
+    nom: "Voie de la divination",
+    famille: "mystique",
+    rangs: [
+      { rang: 1, nom: "Sixième sens", texte: "Le PJ gagne un bonus de +2 en initiative et en DEF, ainsi qu'un bonus de +5 à tous les tests pour éviter d'être surpris. Capacité avancée : +3 en initiative/DEF et +10 pour éviter la surprise.", effets: [{ type: "stat", stat: "INIT", value: 2 }, { type: "stat", stat: "DEF", value: 2 }] },
+      { rang: 2, nom: "Détection de l'invisible*", texte: "Pendant [5 + Mod. SAG] tours, le PJ détecte les créatures invisibles ou cachées à moins de 30 m et perçoit un sort de Clairvoyance actif. Capacité avancée : lancé en action de mouvement, sans concentration." },
+      { rang: 3, nom: "Clairvoyance*", texte: "Le PJ peut voir et entendre à distance ce qui se passe dans un lieu qu'il connaît, tant qu'il reste concentré (action limitée à chaque tour)." },
+      { rang: 4, nom: "Prescience*", texte: "Une fois par combat, à la fin d'un tour, le PJ peut rejouer ce tour depuis le début (les autres ne changent pas leurs actions) en bénéficiant d'un bonus de +10 en initiative et en DEF." },
+      { rang: 5, nom: "Hyperconscience", texte: "Le PJ augmente ses valeurs de SAG et d'INT de +2 et peut lancer deux d20 à chaque test de SAG ou d'INT, gardant le meilleur résultat.", effets: [{ type: "carac", carac: "SAG", value: 2 }, { type: "carac", carac: "INT", value: 2 }] },
+    ],
+  },
+  {
+    id: "voie_envoutement",
+    nom: "Voie de l'envoûtement",
+    famille: "mystique",
+    prerequis: "Si une victime résiste à un sort de cette voie, elle y est immunisée pendant 24 h.",
+    rangs: [
+      { rang: 1, nom: "Injonction*", texte: "Test d'attaque magique opposé (portée 20 m) : la cible doit comprendre un ordre simple et non dangereux. En cas d'échec, elle l'exécute au prochain tour. Capacité avancée : +2 au test d'attaque magique." },
+      { rang: 2, nom: "Sommeil*", texte: "[1d6 + Mod. INT] cibles dans une zone de 10 m (portée 20 m), dont les PV ne dépassent pas le score d'attaque magique du PJ, sombrent dans l'inconscience pendant [5 + Mod. SAG] minutes." },
+      { rang: 3, nom: "Confusion*", texte: "Test d'attaque magique opposé (portée 20 m) : la cible est désorientée pendant [3 + Mod. SAG] tours (1d6 : 1-3 n'agit pas, 4-6 attaque le plus proche). Test de SAG difficulté [10 + Mod. INT] en fin de tour pour résister." },
+      { rang: 4, nom: "Amitié*", texte: "Test d'attaque magique (portée 10 m) contre le score maximal de PV d'une cible humanoïde : elle se comporte comme un ami de longue date tant qu'elle n'est pas attaquée. Résistance possible (SAG difficulté [12 + Mod. INT])." },
+      { rang: 5, nom: "Domination*", texte: "Test d'attaque magique opposé (portée 20 m) : le PJ prend le contrôle de l'esprit de la cible pendant [1d4 + Mod. SAG] minutes. Résistance possible à chaque DM subi (SAG difficulté [10 + Mod. INT])." },
+    ],
+  },
+  {
+    id: "voie_forets",
+    nom: "Voie des forêts",
+    famille: "mystique",
+    rangs: [
+      { rang: 1, nom: "Peau d'écorce*", texte: "Le PJ gagne +2 en DEF pendant [5 + Mod. SAG] tours (+4 au rang 4). Capacité avancée : applique aussi ce bonus aux tests de CON contre les poisons.", effets: [{ type: "stat", stat: "DEF", value: 2 }] },
+      { rang: 2, nom: "Prison végétale*", texte: "Le PJ commande à la végétation pour bloquer ses ennemis dans une zone de 10 m (portée 20 m) pendant [5 + Mod. SAG] tours (-2 en attaque et en DEF, immobilisés). Test de FOR difficulté [10 + Mod. INT] pour se libérer chaque tour." },
+      { rang: 3, nom: "Baies magiques*", texte: "Devant un buisson ou un arbre vivant, le PJ fait pousser [1d6 + Mod. INT] fruits qui rendent chacun [1d10 + niveau] PV (une fois par jour et par personnage)." },
+      { rang: 4, nom: "Animation d'un arbre*", texte: "Une fois par combat, le PJ anime un arbre qui combat pendant [niveau] tours. Arbre animé : Init. 7, DEF 13, PV [rang x 10], DM 1d6+3, réduction de DM de 10 (sauf armes tranchantes et feu)." },
+      { rang: 5, nom: "Régénération*", texte: "La cible touchée par le PJ guérit 3 PV par tour pendant [niveau + Mod. SAG] tours (une fois par jour par créature)." },
+    ],
+  },
+  {
+    id: "voie_illusions",
+    nom: "Voie des illusions",
+    famille: "mystique",
+    rangs: [
+      { rang: 1, nom: "Image décalée*", texte: "Pendant [5 + Mod. SAG] tours, lorsqu'une attaque touche le PJ, il lance 1d6 : sur 5-6, il ne subit pas les DM (les DM de zone s'appliquent normalement). Capacité avancée : applicable aussi aux effets de zone." },
+      { rang: 2, nom: "Mirage*", texte: "Le PJ crée une illusion visuelle et sonore (immobile ou animée) d'une durée de [5 + Mod. SAG] minutes ou tours. Volume max : 10 m de côté par rang (portée 500 m). Capacité avancée : durée portée à [30 + Mod. SAG] minutes." },
+      { rang: 3, nom: "Imitation*", texte: "Le PJ prend l'apparence d'une créature de taille proche (± 50 cm) qu'il voit, pour [5 + Mod. SAG] minutes. Toucher le PJ met fin au sort." },
+      { rang: 4, nom: "Dédoublement*", texte: "Sur une attaque magique réussie (portée 20 m), le PJ crée un double translucide de la cible sous son contrôle pendant [5 + Mod. SAG] tours (moitié des PV, DM divisés par deux)." },
+      { rang: 5, nom: "Tueur fantasmagorique*", texte: "Test d'attaque magique opposé (portée 20 m) : en cas d'échec de la cible, elle tombe à 0 PV ; en cas de succès, elle perd l'équilibre et tombe. Une fois par jour par créature." },
+    ],
+  },
+  {
+    id: "voie_magie_elementaliste",
+    nom: "Voie de la magie élémentaliste",
+    famille: "mystique",
+    rangs: [
+      { rang: 1, nom: "Brumes*", texte: "Le PJ crée un brouillard dense (portée 20 m, zone de 20 m de diamètre) réduisant la visibilité à la pénombre pendant [5 + Mod. SAG] tours. Capacité avancée : double la zone ou la durée pour un coût doublé en PM." },
+      { rang: 2, nom: "Sous tension*", texte: "Le PJ se charge d'énergie électrique pendant [5 + Mod. SAG] tours : toute créature qui le touche au contact subit 1d6 DM. Décharge à distance possible (portée 10 m) infligeant [1d6 + Mod. INT] DM (2d6 au rang 4). Capacité avancée : peut être lancé immédiatement en cas d'attaque." },
+      { rang: 3, nom: "Armure de terre*", texte: "Pendant [5 + Mod. SAG] tours, le PJ retranche à tous les DM de feu, de froid, d'électricité ou d'acide subis un montant égal à deux fois son rang atteint dans cette voie." },
+      { rang: 4, nom: "Boule de feu*", texte: "Test d'attaque magique comparé à la DEF de tous les personnages dans un rayon de 6 m autour d'une cible à 30 m : [4d6 + Mod. INT] DM en cas de succès, moitié en cas d'échec." },
+      { rang: 5, nom: "Intelligence héroïque", texte: "Le PJ augmente sa valeur d'INT de +2 et peut lancer deux d20 à chaque test d'INT, gardant le meilleur résultat.", effets: [{ type: "carac", carac: "INT", value: 2 }] },
+    ],
+  },
+  {
+    id: "voie_magie_runique",
+    nom: "Voie de la magie runique",
+    famille: "mystique",
+    prerequis: "Aucun des sorts de la voie de la magie runique ne peut bénéficier des effets d'une concentration.",
+    rangs: [
+      { rang: 1, nom: "Forgeron*", texte: "Le PJ obtient un bonus de +5 aux tests d'orfèvrerie ou de forge. Il peut enflammer son arme (action de mouvement, [5 + Mod. SAG] tours) pour un bonus aux DM de +1 par rang atteint. Capacité avancée : bonus de test à +10, action gratuite." },
+      { rang: 2, nom: "Rune d'énergie*", texte: "Rituel de cinq minutes : le PJ enchante un bijou pour 24 h, permettant de relancer un d20 une fois par combat sur un test d'attaque, de FOR, DEX ou CON. Capacité avancée : la première rune du jour ne coûte aucun PM." },
+      { rang: 3, nom: "Rune de puissance*", texte: "Rituel de cinq minutes : le PJ enchante une arme pour 24 h, permettant d'infliger les DM maximaux (sans jet de dé) une fois par combat." },
+      { rang: 4, nom: "Rune de garde*", texte: "Le PJ piège une zone de 2 à 10 m de diamètre avec un effet choisi (Alarme, Feu [3d6+Mod. INT] DM, ou Peur [test SAG difficulté 15+Mod. INT ou fuite 2d6 tours]). Durée 1d6 minutes, prolongeable jusqu'à 12 h par rituel." },
+      { rang: 5, nom: "Rune de tradition", texte: "Le PJ peut enchanter une arme ou une armure (niveau de magie = [niveau / 3] arrondi au supérieur) selon les traditions de son peuple. Un mois de travail et 100 po par niveau de magie ; il sacrifie 1 PV définitif." },
+    ],
+  },
+  {
+    id: "voie_mysticisme",
+    nom: "Voie du mysticisme",
+    famille: "mystique",
+    rangs: [
+      { rang: 1, nom: "Bénédiction*", texte: "Le PJ et ses compagnons en vue bénéficient d'un bonus de +1 à tous leurs tests de Carac. et d'attaque pendant [3 + Mod. SAG] tours (+2 au rang 5). Capacité avancée : bonus augmenté de 1." },
+      { rang: 2, nom: "Protection contre le mal*", texte: "Le PJ ou un allié au contact obtient un bonus de +2 en DEF et aux tests de résistance contre morts-vivants, démons, élémentaires et créatures conjurées, pour la durée d'un combat. Capacité avancée : bonus de DEF porté à +4." },
+      { rang: 3, nom: "Délivrance*", texte: "En touchant sa cible, le PJ annule les pénalités infligées par sorts, malédictions, pétrification et capacités spéciales (douleur, mutilation, poisons, etc.)." },
+      { rang: 4, nom: "Sanctuaire*", texte: "Tous les adversaires voulant attaquer le PJ doivent réussir un test de SAG difficulté 15, sinon ils ne peuvent pas. Effets pendant [5 + Mod. SAG] tours ; le sort cesse si le PJ attaque." },
+      { rang: 5, nom: "Rituel de puissance", texte: "Sur une attaque magique avec test et DM, le PJ peut utiliser un d12 au lieu du d20 ; si réussie, +2d6 aux DM." },
+    ],
+  },
+  {
+    id: "voie_sombres_savoirs",
+    nom: "Voie des sombres savoirs",
+    famille: "mystique",
+    rangs: [
+      { rang: 1, nom: "Saignements*", texte: "Test d'attaque magique (portée 10 m) : la victime subit 1d6 DM par tour pendant [rang atteint] tours (ignore la RD, immunité pour les créatures qui ne saignent pas). Capacité avancée : durée [rang + Mod. SAG] tours et DM portés à 1d8 au rang 4." },
+      { rang: 2, nom: "Malédiction*", texte: "Test d'attaque magique (portée 20 m) : la victime réalise tous ses tests avec deux d20 en gardant le plus faible, jusqu'à trois échecs. Capacité avancée : jusqu'à [Mod. INT] cibles (le sort doit être lancé pour chacune)." },
+      { rang: 3, nom: "Pacte sanglant*", texte: "Action gratuite : le PJ sacrifie 1d4 PV pour +3 sur un jet de d20 ou en DEF contre une attaque. Au rang 5, il peut sacrifier 2d4 PV pour +5." },
+      { rang: 4, nom: "Hémorragie*", texte: "Test d'attaque magique (portée 10 m) : tous les DM des attaques sanglantes infligées à la cible augmentent de 1d6 pendant [5 + Mod. SAG] tours (ignore la RD, immunité pour les créatures qui ne saignent pas)." },
+      { rang: 5, nom: "Invocation d'un démon*", texte: "Une fois par combat, en sacrifiant 1d6 PV, le PJ invoque un démon à son service pour [5 + Mod. SAG] tours. Démon : FOR +5, DEX +2, CON +4, Init. 16, DEF 17, PV [niveau x 5] ; divise par deux les DM non magiques subis." },
+    ],
+  },
+);
+
+
+/* ============================================================
+   TERRES D'ARRAN — Les profils (p.54-65)
+   Table complète des 51 profils archétypaux officiels, avec leurs
+   trois voies de profil, leurs formations martiales et — pour les
+   mystiques — leur talent magique. Cette table est utilisée pour
+   pré-remplir le profil suggéré par le peuple/la culture et la
+   famille choisis ; elle reste modifiable (règle optionnelle de
+   personnalisation, p.45).
+   ============================================================ */
+
+const PROFILS = [
+  // --- Combattants ---
+  { id: "archer", nom: "Archer / Archère", cultureId: "gobelin", famille: "combattant",
+    voies: ["voie_archerie", "voie_bravoure", "voie_maitrise_armes"], formationsMartiales: ["legere", "guerre", "trait"],
+    description: "Combattante spécialisée dans l'usage de l'arc, l'archère est capable de dispenser la mort à distance et d'achever les adversaires qui auraient le malheur de la provoquer au corps-à-corps." },
+  { id: "barbare", nom: "Barbare", cultureId: "humain_ruines_nordiques", famille: "combattant",
+    voies: ["voie_bravoure", "voie_ferocite", "voie_puissance"], formationsMartiales: ["legere", "guerre", "guerre_lourde"],
+    description: "Le barbare est un guerrier qui affronte la mort avec courage, mu par une soif inaltérable de gloire et de renommée." },
+  { id: "castagneur", nom: "Castagneur / Castagneuse", cultureId: "humain_terres_orientales", famille: "combattant",
+    voies: ["voie_bravoure", "voie_fourberie", "voie_pugilat"], formationsMartiales: ["legere", "jet", "tir"],
+    description: "Pour la castagneuse, la force de ses poings est capable de venir à bout de tous les problèmes et de toutes les situations." },
+  { id: "executeur", nom: "Exécuteur / Exécutrice", cultureId: "elfe_noir", famille: "combattant",
+    voies: ["voie_combat_deux_armes", "voie_guerre", "voie_maitrise_armes"], formationsMartiales: ["lourde", "duel", "guerre"],
+    description: "L'exécuteur maîtrise les lames avec brio, que ce soit les dagues, les épées ou les rapières." },
+  { id: "forgeron", nom: "Forgeron / Forgeronne", cultureId: "ordre_forge", famille: "combattant",
+    voies: ["voie_guerre", "voie_magie_runique", "voie_puissance"], formationsMartiales: ["lourde", "guerre", "guerre_lourde"],
+    description: "Plus qu'un art, le travail du métal est un véritable mode de vie pour la forgeronne." },
+  { id: "garde_sceaux", nom: "Garde / Gardienne des sceaux", cultureId: "ordre_temple", famille: "combattant",
+    voies: ["voie_arbaletrie", "voie_combat_deux_armes", "voie_guerre"], formationsMartiales: ["legere", "guerre", "tir"],
+    description: "Le garde des sceaux est le bras armé du peuple, celui que l'on envoie contrer les menaces ésotériques lorsque la force est le seul remède." },
+  { id: "garde_corps", nom: "Garde du corps / Gardienne du corps", cultureId: "ordre_talion", famille: "combattant",
+    voies: ["voie_bastion", "voie_maitrise_armes", "voie_puissance"], formationsMartiales: ["lourde", "guerre", "tir"],
+    description: "Il s'agit d'individus rares et précieux auxquels les puissants du monde confient leur vie." },
+  { id: "guerrier_tribal", nom: "Guerrier tribal / Guerrière tribale", cultureId: "orc", famille: "combattant",
+    voies: ["voie_bastion", "voie_ferocite", "voie_guerre"], formationsMartiales: ["legere", "guerre", "guerre_lourde"],
+    description: "Le guerrier tribal est un combattant primitif, proche de ses instincts, qui suit un code propre à son clan ou à sa tribu." },
+  { id: "mercenaire", nom: "Mercenaire", cultureId: "semi_elfe", famille: "combattant",
+    voies: ["voie_archerie", "voie_combat_deux_armes", "voie_maitrise_armes"], formationsMartiales: ["legere", "guerre", "trait"],
+    description: "La mercenaire est une combattante qui loue ses talents martiaux contre quelques pièces d'or. Polyvalente, elle a développé de nombreux styles de combat." },
+  { id: "milicien", nom: "Milicien / Milicienne", cultureId: "humain_mitan", famille: "combattant",
+    voies: ["voie_arbaletrie", "voie_commandement", "voie_maitrise_armes"], formationsMartiales: ["lourde", "tir", "guerre"],
+    description: "Combattant d'élite capable de défendre les positions retranchées des plus hauts remparts ou de semer la mort depuis les ponts des navires." },
+  { id: "monteur_cochon", nom: "Monteur / Monteuse de cochon", cultureId: "ordre_errants", famille: "combattant",
+    voies: ["voie_bravoure", "voie_combat_monte", "voie_guerre"], formationsMartiales: ["legere", "hast", "jet"],
+    description: "Parcourant les plaines à dos de cochon de combat, la monteuse est une farouche combattante capable de prouesses admirables." },
+  { id: "noble", nom: "Noble", cultureId: "elfe_blanc", famille: "combattant",
+    voies: ["voie_combat_monte", "voie_commandement", "voie_guerre"], formationsMartiales: ["lourde", "guerre_lourde", "hast"],
+    description: "Le noble est un aristocrate, membre de la caste dirigeante de son peuple, aussi prompt à commander depuis la cour d'un château que sur le champ de bataille." },
+  { id: "porte_bouclier", nom: "Porte-bouclier", cultureId: "ordre_bouclier", famille: "combattant",
+    voies: ["voie_bastion", "voie_bravoure", "voie_commandement"], formationsMartiales: ["lourde", "guerre", "guerre_lourde"],
+    description: "Le porte-bouclier est un titre désignant les guerriers nains chargés de défendre les frontières des cités-forteresses." },
+  { id: "protecteur", nom: "Protecteur / Protectrice", cultureId: "elfe_bleu", famille: "combattant",
+    voies: ["voie_acrobatie", "voie_combat_deux_armes", "voie_guerre"], formationsMartiales: ["lourde", "guerre", "trait"],
+    description: "La protectrice est une combattante chargée de protéger les cités elfiques. Première ligne de défense, agent de la loi, protectrice de la veuve et de l'orphelin." },
+  { id: "rodeur", nom: "Rôdeur / Rôdeuse", cultureId: "elfe_sylvain", famille: "combattant",
+    voies: ["voie_chasse", "voie_combat_deux_armes", "voie_maitrise_armes"], formationsMartiales: ["lourde", "guerre", "jet"],
+    description: "La rôdeuse est une combattante calme et méthodique, proche de la nature et capable de bénéficier de ses bienfaits." },
+  { id: "sanguinaire", nom: "Sanguinaire", cultureId: "ogre", famille: "combattant",
+    voies: ["voie_ferocite", "voie_guerre", "voie_puissance"], formationsMartiales: ["legere", "guerre_lourde", "jet"],
+    description: "Le sanguinaire n'est que violence, rage et puissance à l'état brut." },
+  { id: "soldat", nom: "Soldat / Soldate", cultureId: "humain_empires_austraux", famille: "combattant",
+    voies: ["voie_bastion", "voie_guerre", "voie_maitrise_armes"], formationsMartiales: ["lourde", "guerre", "guerre_lourde"],
+    description: "Toujours l'arme au poing, la soldate est une combattante qui a fait de la guerre son gagne-pain." },
+
+  // --- Aventuriers ---
+  { id: "apothicaire", nom: "Apothicaire", cultureId: "ordre_forge", famille: "aventurier",
+    voies: ["voie_alchimie", "voie_arbaletrie", "voie_bravoure"], formationsMartiales: ["legere", "tir"],
+    description: "L'apothicaire utilise la science ou les traditions pour produire médicaments et décoctions en vue de guérir les maux du corps." },
+  { id: "assassin", nom: "Assassin / Assassine", cultureId: "elfe_noir", famille: "aventurier",
+    voies: ["voie_assassinat", "voie_escrime", "voie_fourberie"], formationsMartiales: ["legere", "duel"],
+    description: "La pénombre est la compagne funèbre de l'assassine. Experte dans l'art du crochetage, rares sont les portes capables de l'empêcher d'arriver à ses fins." },
+  { id: "chasseur", nom: "Chasseur / Chasseuse", cultureId: "orc", famille: "aventurier",
+    voies: ["voie_archerie", "voie_chasse", "voie_guerre"], formationsMartiales: ["legere", "trait"],
+    description: "Le chasseur est un élément vital à la plupart des communautés tribales et rurales des Terres d'Arran, chargé de traquer le gibier." },
+  { id: "courtisan", nom: "Courtisan / Courtisane", cultureId: "humain_mitan", famille: "aventurier",
+    voies: ["voie_boheme", "voie_charme", "voie_escrime"], formationsMartiales: ["legere", "duel"],
+    description: "Experte dans l'art du langage, de la diplomatie et des faux-semblants, la courtisane évolue dans les hautes sphères des cités les plus civilisées." },
+  { id: "eclaireur", nom: "Éclaireur / Éclaireuse", cultureId: "ordre_bouclier", famille: "aventurier",
+    voies: ["voie_archerie", "voie_chasse", "voie_combat_monte"], formationsMartiales: ["legere", "trait"],
+    description: "Chargé de la tâche périlleuse consistant à anticiper les dangers et à dresser l'état des lieux des forces en présence." },
+  { id: "escroc", nom: "Escroc", cultureId: "humain_terres_orientales", famille: "aventurier",
+    voies: ["voie_assassinat", "voie_charme", "voie_escrime"], formationsMartiales: ["legere", "duel"],
+    description: "Évoluant dans les bas-fonds des cités, l'escroc utilise son bagout et son charme pour se sortir des guêpiers dans lesquels il finit inlassablement par replonger." },
+  { id: "explorateur", nom: "Explorateur / Exploratrice", cultureId: "humain_empires_austraux", famille: "aventurier",
+    voies: ["voie_boheme", "voie_compagnon_animal", "voie_fourberie"], formationsMartiales: ["legere", "guerre"],
+    description: "Parcourant le monde pour étudier les mystères des Terres d'Arran ou établir de nouvelles cartographies." },
+  { id: "forestier", nom: "Forestier / Forestière", cultureId: "elfe_sylvain", famille: "aventurier",
+    voies: ["voie_archerie", "voie_arts_druidiques", "voie_compagnon_animal"], formationsMartiales: ["legere", "trait"],
+    description: "Parcourant les forêts comme si elle en connaissait les moindres sentiers, la forestière vit en harmonie avec le monde sauvage." },
+  { id: "ingenieur", nom: "Ingénieur / Ingénieure", cultureId: "ordre_temple", famille: "aventurier",
+    voies: ["voie_arbaletrie", "voie_maitrise_armes", "voie_magie_runique"], formationsMartiales: ["legere", "tir"],
+    description: "L'ingénieur utilise ses connaissances pour faire chaque jour de nouvelles découvertes scientifiques." },
+  { id: "marchand", nom: "Marchand / Marchande", cultureId: "ordre_talion", famille: "aventurier",
+    voies: ["voie_boheme", "voie_charme", "voie_fourberie"], formationsMartiales: ["legere", "tir"],
+    description: "L'art du commerce est ancestral mais n'a jamais été aussi influent et déterminant qu'aujourd'hui." },
+  { id: "marin", nom: "Marin", cultureId: "elfe_bleu", famille: "aventurier",
+    voies: ["voie_acrobatie", "voie_archerie", "voie_pugilat"], formationsMartiales: ["legere", "trait"],
+    description: "Ayant fait de la mer son foyer et des embruns son parfum, le marin passe l'essentiel de sa vie sur les flots." },
+  { id: "pirate", nom: "Pirate", cultureId: "humain_ruines_nordiques", famille: "aventurier",
+    voies: ["voie_acrobatie", "voie_arbaletrie", "voie_ferocite"], formationsMartiales: ["guerre", "tir"],
+    description: "Voguant sur les océans à la recherche d'aventures, de terres sauvages à explorer, de ruines oubliées ou de navires marchands à piller." },
+  { id: "pisteur", nom: "Pisteur / Pisteuse", cultureId: "elfe_blanc", famille: "aventurier",
+    voies: ["voie_boheme", "voie_chasse", "voie_maitrise_armes"], formationsMartiales: ["legere", "guerre"],
+    description: "Les pisteuses sont des combattantes choisies par les Elfes blancs pour parcourir le monde, recueillir des reliques et sauvegarder les héritages menacés." },
+  { id: "porte_etendard", nom: "Porte-étendard", cultureId: "ogre", famille: "aventurier",
+    voies: ["voie_arts_druidiques", "voie_chasse", "voie_commandement"], formationsMartiales: ["legere", "guerre"],
+    description: "Soutien singulier au milieu du champ de bataille, la porte-étendard gonfle les cœurs et peut inverser le cours d'un combat." },
+  { id: "trappeur", nom: "Trappeur / Trappeuse", cultureId: "ordre_errants", famille: "aventurier",
+    voies: ["voie_chasse", "voie_compagnon_animal", "voie_fourberie"], formationsMartiales: ["legere", "guerre"],
+    description: "Le trappeur est un chasseur spécialisé dans la pose et le désamorçage des pièges, utile à toutes les communautés rurales." },
+  { id: "voleur", nom: "Voleur / Voleuse", cultureId: "gobelin", famille: "aventurier",
+    voies: ["voie_acrobatie", "voie_escrime", "voie_fourberie"], formationsMartiales: ["legere", "duel"],
+    description: "La voleuse se faufile dans les ombres ou dans les foules pour s'approprier les biens d'autrui." },
+  { id: "voyageur", nom: "Voyageur / Voyageuse", cultureId: "semi_elfe", famille: "aventurier",
+    voies: ["voie_archerie", "voie_boheme", "voie_escrime"], formationsMartiales: ["trait", "duel"],
+    description: "Le voyageur arpente les Terres d'Arran, se nourrissant des rencontres et de la richesse ethnique du monde." },
+
+  // --- Mystiques ---
+  { id: "alchimiste", nom: "Alchimiste", cultureId: "ordre_forge", famille: "mystique",
+    voies: ["voie_alchimie", "voie_magie_runique", "voie_sombres_savoirs"], formationsMartiales: ["legere"], talentMagique: "lumieres_dansantes",
+    description: "L'alchimiste — sous ses airs de savante folle ou d'hérétique — ne cherche qu'une seule chose : repousser les limites du possible." },
+  { id: "ancien", nom: "Ancien / Ancienne", cultureId: "ogre", famille: "mystique",
+    voies: ["voie_forets", "voie_magie_elementaliste", "voie_sombres_savoirs"], formationsMartiales: ["legere"], talentMagique: "detection_magie",
+    description: "« Ancien » ne désigne pas forcément une personne âgée : c'est un titre transmis par un mystique à son apprenti avec l'enseignement de traditions arcaniques séculaires." },
+  { id: "aumonier", nom: "Aumônier / Aumônière", cultureId: "ordre_bouclier", famille: "mystique",
+    voies: ["voie_commandement", "voie_magie_elementaliste", "voie_sombres_savoirs"], formationsMartiales: ["guerre_lourde"], talentMagique: "inspiration",
+    description: "L'aumônière est une mystique ayant fait le choix surprenant de combattre sur le champ de bataille." },
+  { id: "chaman", nom: "Chaman / Chamane", cultureId: "gobelin", famille: "mystique",
+    voies: ["voie_alchimie", "voie_forets", "voie_pugilat"], formationsMartiales: ["legere"], talentMagique: "flamme",
+    description: "La chamane utilise les forces occultes de la nature pour endurcir son corps et affronter les ennemis de son peuple sans craindre la mort." },
+  { id: "conseiller", nom: "Conseiller / Conseillère", cultureId: "semi_elfe", famille: "mystique",
+    voies: ["voie_boheme", "voie_divination", "voie_envoutement"], formationsMartiales: ["jet"], talentMagique: "inspiration",
+    description: "Le conseiller est naturellement ouvert aux autres cultures et utilise ses connaissances pour lier les peuples et les individus." },
+  { id: "druide", nom: "Druide / Druidesse", cultureId: "elfe_sylvain", famille: "mystique",
+    voies: ["voie_arts_druidiques", "voie_compagnon_animal", "voie_forets"], formationsMartiales: ["trait"], talentMagique: "flamme",
+    description: "La druidesse est une sage des forêts, respectueuse de la nature, qui apporte conseil et soutien aux peuples pour maintenir l'équilibre de la vie." },
+  { id: "elementaliste", nom: "Élémentaliste", cultureId: "elfe_blanc", famille: "mystique",
+    voies: ["voie_escrime", "voie_magie_elementaliste", "voie_magie_runique"], formationsMartiales: ["duel"], talentMagique: "detection_magie",
+    description: "L'élémentaliste est un mystique raffiné, capable d'allier la puissance des magies élémentaires avec celle de l'acier raffiné des lames de duellistes." },
+  { id: "ensorceleur", nom: "Ensorceleur / Ensorceleuse", cultureId: "humain_terres_orientales", famille: "mystique",
+    voies: ["voie_charme", "voie_envoutement", "voie_illusions"], formationsMartiales: ["legere"], talentMagique: "inspiration",
+    description: "L'ensorceleuse mobilise son charme ainsi que des rituels magiques pour envoûter les gens et altérer leurs émotions." },
+  { id: "ermite", nom: "Ermite", cultureId: "humain_ruines_nordiques", famille: "mystique",
+    voies: ["voie_divination", "voie_illusions", "voie_pugilat"], formationsMartiales: ["legere"], talentMagique: "lumieres_dansantes",
+    description: "L'ermite est un étrange individu vivant seul et isolé du monde, souvent pour des motifs spirituels." },
+  { id: "espion", nom: "Espion / Espionne", cultureId: "ordre_talion", famille: "mystique",
+    voies: ["voie_alchimie", "voie_fourberie", "voie_illusions"], formationsMartiales: ["legere"], talentMagique: "projectile_force",
+    description: "L'espionne vit de la revente d'informations sensibles. Elle ne doit sa survie qu'à la finesse de son esprit et au poids de ses contacts." },
+  { id: "fauconnier", nom: "Fauconnier / Fauconnière", cultureId: "humain_mitan", famille: "mystique",
+    voies: ["voie_archerie", "voie_arts_druidiques", "voie_mysticisme"], formationsMartiales: ["trait"], talentMagique: "projectile_force",
+    description: "Le fauconnier a suivi un enseignement occulte pour tisser un lien particulier avec un oiseau de proie. Archer d'exception." },
+  { id: "mage", nom: "Mage", cultureId: "humain_empires_austraux", famille: "mystique",
+    voies: ["voie_envoutement", "voie_illusions", "voie_magie_elementaliste"], formationsMartiales: ["legere"], talentMagique: "detection_magie",
+    description: "La mage voue sa vie à l'apprentissage et la maîtrise des forces surnaturelles qui régissent ce monde." },
+  { id: "necromancien", nom: "Nécromancien / Nécromancienne", cultureId: "orc", famille: "mystique",
+    voies: ["voie_bravoure", "voie_divination", "voie_sombres_savoirs"], formationsMartiales: ["legere"], talentMagique: "detection_magie",
+    description: "Rares sont les arts mystiques aussi répudiés que ceux en rapport avec la mort. C'est pourtant vers cette discipline que s'est tourné le nécromancien." },
+  { id: "ombre_lame", nom: "Ombre-lame", cultureId: "elfe_noir", famille: "mystique",
+    voies: ["voie_assassinat", "voie_envoutement", "voie_sombres_savoirs"], formationsMartiales: ["duel"], talentMagique: "detection_magie",
+    description: "L'ombre-lame serait une assassine qui utiliserait la magie pour parvenir à ses fins. Personne n'a la preuve que cette caste existe vraiment." },
+  { id: "pelerin", nom: "Pèlerin / Pèlerine", cultureId: "ordre_errants", famille: "mystique",
+    voies: ["voie_combat_monte", "voie_illusions", "voie_mysticisme"], formationsMartiales: ["tir"], talentMagique: "lumieres_dansantes",
+    description: "Le pèlerin erre sur les routes des Terres d'Arran en quête de spiritualité, apportant aide et réconfort." },
+  { id: "pretre", nom: "Prêtre / Prêtresse", cultureId: "ordre_temple", famille: "mystique",
+    voies: ["voie_commandement", "voie_divination", "voie_mysticisme"], formationsMartiales: ["tir"], talentMagique: "inspiration",
+    description: "Œuvrant pour un culte, la prêtresse soulage les maux des communautés et rend la justice." },
+  { id: "prophete", nom: "Prophète / Prophétesse", cultureId: "elfe_bleu", famille: "mystique",
+    voies: ["voie_divination", "voie_envoutement", "voie_mysticisme"], formationsMartiales: ["legere"], talentMagique: "detection_magie",
+    description: "Guide mystérieux, le prophète lit l'avenir dans le fil de l'eau, le chant de la terre ou la course des nuages." },
+];
+
+/* Accès rapide : profils possibles pour une culture + famille données */
+function profilsPour(cultureId, familleId) {
+  return PROFILS.filter((p) => p.cultureId === cultureId && p.famille === familleId);
+}
+
+
+/* ============================================================
+   TERRES D'ARRAN — Moteur de calcul
+   Implémente les formules officielles du Livre du joueur :
+   - PV = DV max + Mod. CON
+   - Init = valeur de DEX (- bonus DEF armure)
+   - DEF = 10 + Mod. DEX (annulé si armure encombrante) + bonus
+   - ATK contact   = niveau + Mod. FOR + bonus famille + divers
+   - ATK distance  = niveau + Mod. DEX + bonus famille + divers - floor(bonusDEF/2)
+   - ATK magique   = niveau + Mod. INT + bonus famille + divers - bonusDEF
+   - PC = 2 + Mod. CHA (+2 aventuriers)
+   - PM = (niveau + Mod. SAG) x multiplicateur famille
+   ============================================================ */
+
+const Engine = (() => {
+  function findPeuple(peupleId) {
+    return PEUPLES.find((p) => p.id === peupleId) || null;
+  }
+  function findCulture(peupleId, cultureId) {
+    const p = findPeuple(peupleId);
+    if (!p) return null;
+    return p.cultures.find((c) => c.id === cultureId) || null;
+  }
+  function findCultureAnyPeuple(cultureId) {
+    for (const p of PEUPLES) {
+      const c = p.cultures.find((c) => c.id === cultureId);
+      if (c) return { peuple: p, culture: c };
+    }
+    return null;
+  }
+  function findVoieProfil(voieId) {
+    return VOIES_PROFIL.find((v) => v.id === voieId) || null;
+  }
+  function findArmure(armureId) {
+    return ARMURES.find((a) => a.id === armureId) || null;
+  }
+  function findArme(armeId) {
+    return ARMES.find((a) => a.id === armeId) || null;
+  }
+
+  /* ---- Résolution du peuple/culture (gère les modes composites) ---- */
+  // character.peuple = { mode, peupleId, cultureId, parentA, parentB, cultureChoisieId, atoutChoisi, faiblesseChoisie, traitChoisi }
+  function resoudrePeuple(character) {
+    const pe = character.peuple || {};
+    if (pe.mode === "simple") {
+      const peuple = findPeuple(pe.peupleId);
+      const culture = peuple ? peuple.cultures.find((c) => c.id === pe.cultureId) : null;
+      if (!peuple || !culture) return null;
+      const modificateurs = culture.modificateurs || peuple.modificateurs || { atouts: [], faiblesses: [] };
+      return {
+        mode: "simple",
+        nomAffiche: `${peuple.nom} (${culture.nom})`,
+        modificateurs,
+        trait: culture.trait || peuple.trait || null,
+        voiesPeuple: [{ key: `peuple:${peuple.id}`, nom: peuple.voiePeuple.nom, rangs: peuple.voiePeuple.rangs, rangMax: 5 }],
+        voiesCulturelles: [{ key: `culture:${culture.id}`, nom: culture.voieCulturelle.nom, rangs: culture.voieCulturelle.rangs, rangMax: 5 }],
+        prMax: peuple.prMax || culture.prMax || 5,
+      };
+    }
+    if (pe.mode === "semi_elfe" || pe.mode === "sang_mele") {
+      const pA = findPeuple(pe.parentA.peupleId);
+      const pB = findPeuple(pe.parentB.peupleId);
+      if (!pA || !pB) return null;
+      const cultureSrc = findCultureAnyPeuple(pe.cultureChoisieId);
+      const nomType = pe.mode === "semi_elfe" ? "Semi-Elfe" : "Sang-mêlé";
+      return {
+        mode: pe.mode,
+        nomAffiche: `${nomType} (${pA.nom} × ${pB.nom})`,
+        modificateurs: { atouts: [], faiblesses: [] }, // règle officielle : aucun atout/faiblesse
+        trait: null,
+        voiesPeuple: [
+          { key: `peuple:${pA.id}`, nom: pA.voiePeuple.nom, rangs: pA.voiePeuple.rangs, rangMax: 3 },
+          { key: `peuple:${pB.id}`, nom: pB.voiePeuple.nom, rangs: pB.voiePeuple.rangs, rangMax: 3 },
+        ],
+        voiesCulturelles: cultureSrc ? [{ key: `culture:${cultureSrc.culture.id}`, nom: cultureSrc.culture.voieCulturelle.nom, rangs: cultureSrc.culture.voieCulturelle.rangs, rangMax: 5 }] : [],
+        prMax: 5,
+      };
+    }
+    if (pe.mode === "metis") {
+      // Deux cultures elfes différentes : une seule voie de peuple elfe (pleine), culture choisie parmi les deux parentes.
+      const elfe = findPeuple("elfe");
+      const cultureSrc = findCultureAnyPeuple(pe.cultureChoisieId);
+      return {
+        mode: "metis",
+        nomAffiche: `Métis elfe (${cultureSrc ? cultureSrc.culture.nom : "?"})`,
+        modificateurs: elfe.modificateurs,
+        trait: elfe.trait,
+        voiesPeuple: [{ key: `peuple:elfe`, nom: elfe.voiePeuple.nom, rangs: elfe.voiePeuple.rangs, rangMax: 5 }],
+        voiesCulturelles: cultureSrc ? [{ key: `culture:${cultureSrc.culture.id}`, nom: cultureSrc.culture.voieCulturelle.nom, rangs: cultureSrc.culture.voieCulturelle.rangs, rangMax: 5 }] : [],
+        prMax: 5,
+      };
+    }
+    if (pe.mode === "aberration") {
+      const pv = findPeuple("peau_verte");
+      const cultureSrc = findCultureAnyPeuple(pe.cultureChoisieId);
+      const atouts = pe.atoutChoisi ? [pe.atoutChoisi] : [];
+      const faiblesses = pe.faiblesseChoisie ? [pe.faiblesseChoisie] : [];
+      return {
+        mode: "aberration",
+        nomAffiche: `Aberration (${pe.parentA.peupleLabel || ""} × ${pe.parentB.peupleLabel || ""})`,
+        modificateurs: { atouts, faiblesses },
+        trait: pe.traitChoisi || null,
+        voiesPeuple: [{ key: `peuple:peau_verte`, nom: pv.voiePeuple.nom, rangs: pv.voiePeuple.rangs, rangMax: 5 }],
+        voiesCulturelles: cultureSrc ? [{ key: `culture:${cultureSrc.culture.id}`, nom: cultureSrc.culture.voieCulturelle.nom, rangs: cultureSrc.culture.voieCulturelle.rangs, rangMax: 5 }] : [],
+        prMax: 5,
+      };
+    }
+    return null;
+  }
+
+  /* ---- Voies de départ disponibles (3 du profil + peuple + culturelle) ---- */
+  function voiesDeDepart(character) {
+    const res = [];
+    (character.voiesProfilChoisies || []).forEach((vid) => {
+      const v = findVoieProfil(vid);
+      if (v) res.push({ key: `profil:${vid}`, nom: v.nom, rangs: v.rangs, rangMax: 5, type: "profil" });
+    });
+    const pres = resoudrePeuple(character);
+    if (pres) {
+      pres.voiesPeuple.forEach((vp) => res.push({ ...vp, type: "peuple" }));
+      pres.voiesCulturelles.forEach((vc) => res.push({ ...vc, type: "culturelle" }));
+    }
+    return res;
+  }
+
+  /* Renvoie la liste de toutes les voies "accessibles" (départ + 30 voies de profil
+     pour la progression libre au-delà du niveau 1), avec leur rang atteint actuel. */
+  function toutesLesVoiesAvecRang(character) {
+    const dep = voiesDeDepart(character);
+    const prog = character.progressionVoies || {};
+    const byKey = {};
+    dep.forEach((v) => (byKey[v.key] = { ...v, rangAtteint: prog[v.key] || 0 }));
+    VOIES_PROFIL.forEach((v) => {
+      const key = `profil:${v.id}`;
+      if (!byKey[key]) byKey[key] = { key, nom: v.nom, rangs: v.rangs, rangMax: 5, type: "profil_libre", rangAtteint: prog[key] || 0 };
+    });
+    return Object.values(byKey);
+  }
+
+  /* ---- Effets actifs (cumul de tous les rangs acquis dans toutes les voies) ---- */
+  function effetsActifs(character) {
+    const out = [];
+    const prog = character.progressionVoies || {};
+    const voies = toutesLesVoiesAvecRang(character);
+    voies.forEach((v) => {
+      const rang = prog[v.key] || 0;
+      for (let r = 1; r <= rang; r++) {
+        const def = v.rangs[r - 1];
+        if (def && def.effets) def.effets.forEach((e) => out.push({ ...e, source: `${v.nom} (rang ${r}) — ${def.nom}` }));
+      }
+    });
+    return out;
+  }
+
+  /* ---- Caractéristiques finales ---- */
+  function caracsFinales(character) {
+    const base = character.caracsBase || {};
+    const finales = {};
+    CARACS.forEach((c) => (finales[c.id] = base[c.id] || 10));
+    const pres = resoudrePeuple(character);
+    if (pres && pres.modificateurs) {
+      (pres.modificateurs.atouts || []).forEach((a) => (finales[a.carac] += a.value));
+      (pres.modificateurs.faiblesses || []).forEach((f) => (finales[f.carac] += f.value));
+    }
+    effetsActifs(character).forEach((e) => {
+      if (e.type === "carac") {
+        let carac = e.carac;
+        if (carac === "CHOIX") carac = character.caracChoixDepassement || null;
+        if (carac && finales[carac] !== undefined) finales[carac] += e.value;
+      }
+    });
+    return finales;
+  }
+
+  function modsFinaux(character) {
+    const finales = caracsFinales(character);
+    const mods = {};
+    CARACS.forEach((c) => (mods[c.id] = modFromValeur(finales[c.id])));
+    return mods;
+  }
+
+  /* ---- Statistiques secondaires ---- */
+  function statsSecondaires(character) {
+    const niveau = character.niveau || 1;
+    const mods = modsFinaux(character);
+    const famille = FAMILLES[character.familleId] || null;
+    const effets = effetsActifs(character);
+    const armure = character.equipement && character.equipement.armureId ? findArmure(character.equipement.armureId) : null;
+    const bonusDEFArmure = armure ? armure.bonusDEF : 0;
+    const armureEncombrante = armure ? !!armure.encombrante : false;
+
+    function sommeStat(stat) {
+      let total = 0;
+      const detail = [];
+      effets.forEach((e) => {
+        if (e.type === "stat" && e.stat === stat) {
+          total += e.value;
+          detail.push({ value: e.value, source: e.source });
+        }
+        if (e.type === "statParCarac" && e.stat === stat) {
+          const v = mods[e.carac] || 0;
+          total += v;
+          detail.push({ value: v, source: `${e.source} (Mod. ${e.carac})` });
+        }
+      });
+      return { total, detail };
+    }
+
+    // PV — niveau 1 : DV maximal + Mod. CON (règle de création).
+    // Niveaux supplémentaires : à chaque niveau, +Mod. CON et soit un jet de DV
+    // (mémorisé dans character.pvRolls), soit la moitié du DV (méthode "moyenne").
+    const deVie = famille ? famille.deVie : 6;
+    const niveauxSupplementaires = Math.max(0, niveau - 1);
+    const moitieDV = Math.ceil(deVie / 2);
+    let pvParNiveauDetail = [];
+    let pvProgression = 0;
+    if (niveauxSupplementaires > 0) {
+      const methode = character.methodePV || "moyenne";
+      const rolls = character.pvRolls || [];
+      for (let i = 0; i < niveauxSupplementaires; i++) {
+        const jet = methode === "aleatoire" ? (rolls[i] !== undefined ? rolls[i] : moitieDV) : moitieDV;
+        pvProgression += jet + mods.CON;
+        pvParNiveauDetail.push({ niveau: i + 2, de: jet, mod: mods.CON });
+      }
+    }
+    const pvBonus = sommeStat("PV");
+    const pv = deVie + mods.CON + pvProgression + pvBonus.total;
+
+    // Initiative
+    const initBonus = sommeStat("INIT");
+    const initiative = caracsFinales(character).DEX + initBonus.total - bonusDEFArmure;
+
+    // Défense
+    const defBonus = sommeStat("DEF");
+    const modDEXpourDEF = armureEncombrante ? 0 : mods.DEX;
+    const defense = 10 + modDEXpourDEF + bonusDEFArmure + defBonus.total;
+
+    // Scores d'attaque
+    const atkContactBonus = sommeStat("ATK_CONTACT");
+    const atkDistanceBonus = sommeStat("ATK_DISTANCE");
+    const atkMagiqueBonus = sommeStat("ATK_MAGIQUE");
+    const bonusFamilleContact = famille ? famille.bonusAttaqueContact : 0;
+    const bonusFamilleDistance = famille ? famille.bonusAttaqueDistance : 0;
+    const bonusFamilleMagique = famille ? famille.bonusAttaqueMagique : 0;
+
+    const attaqueContact = niveau + mods.FOR + bonusFamilleContact + atkContactBonus.total;
+    const attaqueDistanceBrute = niveau + mods.DEX + bonusFamilleDistance + atkDistanceBonus.total;
+    const attaqueMagiqueBrute = niveau + mods.INT + bonusFamilleMagique + atkMagiqueBonus.total;
+    const malusDistance = Math.floor(bonusDEFArmure / 2);
+    const attaqueDistance = attaqueDistanceBrute - malusDistance;
+    const attaqueMagique = attaqueMagiqueBrute - bonusDEFArmure;
+
+    // Points de chance
+    const pc = 2 + mods.CHA + (famille ? famille.bonusPC : 0);
+
+    // Points de magie
+    let pm = (niveau + mods.SAG) * (famille ? famille.multiplicateurPM : 1);
+    effets.forEach((e) => {
+      if (e.type === "PM_flat_carac") pm += mods[e.carac] || 0;
+    });
+
+    // Points de récupération
+    const pres = resoudrePeuple(character);
+    const prMax = (pres && pres.prMax) || 5;
+
+    return {
+      pv, deVie, modCON: mods.CON, pvBonus, moitieDV, pvParNiveauDetail, niveauxSupplementaires,
+      initiative, initBonus, bonusDEFArmure,
+      defense, defBonus, modDEXpourDEF, armureEncombrante,
+      attaqueContact, atkContactBonus,
+      attaqueDistance, attaqueDistanceBrute, malusDistance, atkDistanceBonus,
+      attaqueMagique, attaqueMagiqueBrute, atkMagiqueBonus,
+      pc, pm, prMax,
+      malusTestsDEX: bonusDEFArmure,
+      bruleMagieRatio: famille ? famille.bruleMagieRatio : 1,
+    };
+  }
+
+  return {
+    findPeuple, findCulture, findCultureAnyPeuple, findVoieProfil, findArmure, findArme,
+    resoudrePeuple, voiesDeDepart, toutesLesVoiesAvecRang, effetsActifs,
+    caracsFinales, modsFinaux, statsSecondaires,
+  };
+})();
+
+
+/* ============================================================
+   TERRES D'ARRAN — Application de création de personnage
+   ============================================================ */
+
+const STEP_IDS = ["caracs", "peuple", "profil", "capacites", "equipement", "fiche"];
+const STEP_LABELS = {
+  caracs: "1. Caractéristiques",
+  peuple: "2. Peuple & culture",
+  profil: "3. Famille & profil",
+  capacites: "4. Capacités",
+  equipement: "5. Équipement",
+  fiche: "6. Fiche & export",
+};
+
+let character = null;
+let currentStep = "caracs";
+
+function nouveauPersonnage() {
+  return {
+    nom: "",
+    apparence: "",
+    niveau: 1,
+    // Répartition libre : 77 points au total, min 8 / max 18 par caractéristique
+    caracsBase: { FOR: 12, DEX: 12, CON: 13, INT: 13, SAG: 13, CHA: 14 }, // somme = 77
+    methodePV: "moyenne", // "moyenne" ou "aleatoire" — progression des PV au-delà du niveau 1
+    pvRolls: [], // jets de DV mémorisés pour les niveaux 2, 3, 4... (méthode aléatoire)
+    caracChoixDepassement: null,
+    peuple: {
+      mode: "simple",
+      peupleId: null,
+      cultureId: null,
+      parentA: { peupleId: null, cultureId: null },
+      parentB: { peupleId: null, cultureId: null },
+      cultureChoisieId: null,
+      atoutChoisi: null,
+      faiblesseChoisie: null,
+      traitChoisi: null,
+    },
+    familleId: null,
+    profilId: null,
+    voiesProfilChoisies: [],
+    talentMagiqueId: null,
+    formationsMartialesChoisies: [],
+    progressionVoies: {},
+    equipement: { armeIds: [], armureId: null },
+  };
+}
+
+const STORAGE_KEY = "terres-arran-createur-v1";
+
+/* Fusionne des données (sauvegarde ou JSON importé) avec un personnage vierge,
+   sous-objets compris, et ramène les caractéristiques dans les bornes 8–18. */
+function normaliserPersonnage(data) {
+  const base = nouveauPersonnage();
+  const c = Object.assign(base, data || {});
+  c.peuple = Object.assign(nouveauPersonnage().peuple, (data && data.peuple) || {});
+  c.equipement = Object.assign({ armeIds: [], armureId: null }, (data && data.equipement) || {});
+  c.caracsBase = Object.assign(nouveauPersonnage().caracsBase, (data && data.caracsBase) || {});
+  CARACS.forEach((k) => {
+    const v = parseInt(c.caracsBase[k.id], 10);
+    c.caracsBase[k.id] = isNaN(v) ? 8 : Math.max(8, Math.min(18, v));
+  });
+  c.progressionVoies = c.progressionVoies || {};
+  c.voiesProfilChoisies = c.voiesProfilChoisies || [];
+  c.formationsMartialesChoisies = c.formationsMartialesChoisies || [];
+  delete c.methodeGeneration;
+  delete c.valeursDisponibles;
+  return c;
+}
+
+function sommeCaracs(c) {
+  return CARACS.reduce((s, k) => s + (c.caracsBase[k.id] || 0), 0);
+}
+
+function sauvegarder() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ character, currentStep })); } catch (e) { /* stockage indisponible */ }
+}
+
+function nouveauDepart() {
+  if (!confirm("Effacer le personnage en cours et repartir de zéro ? Pensez à l'exporter en JSON si vous voulez le conserver.")) return;
+  character = nouveauPersonnage();
+  goStep("caracs");
+}
+
+function init() {
+  character = nouveauPersonnage();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      character = normaliserPersonnage(saved.character);
+      if (STEP_IDS.includes(saved.currentStep)) currentStep = saved.currentStep;
+    }
+  } catch (e) { character = nouveauPersonnage(); }
+  renderAll();
+}
+
+function renderAll() {
+  renderStepsNav();
+  renderStep();
+  renderSheet();
+  sauvegarder();
+}
+
+/* ---------------------------------------------------------- */
+/* Navigation                                                  */
+/* ---------------------------------------------------------- */
+function renderStepsNav() {
+  const nav = document.getElementById("steps-nav");
+  nav.innerHTML = "";
+  STEP_IDS.forEach((id) => {
+    const b = document.createElement("button");
+    b.textContent = STEP_LABELS[id];
+    if (id === currentStep) b.classList.add("active");
+    b.addEventListener("click", () => {
+      currentStep = id;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    nav.appendChild(b);
+  });
+}
+
+function goStep(id) {
+  currentStep = id;
+  renderAll();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ---------------------------------------------------------- */
+/* Rendu de l'étape courante                                   */
+/* ---------------------------------------------------------- */
+function renderStep() {
+  const c = document.getElementById("step-content");
+  c.innerHTML = "";
+  if (currentStep === "caracs") c.appendChild(renderStepCaracs());
+  else if (currentStep === "peuple") c.appendChild(renderStepPeuple());
+  else if (currentStep === "profil") c.appendChild(renderStepProfil());
+  else if (currentStep === "capacites") c.appendChild(renderStepCapacites());
+  else if (currentStep === "equipement") c.appendChild(renderStepEquipement());
+  else if (currentStep === "fiche") c.appendChild(renderStepFiche());
+}
+
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => {
+    if (k === "class") e.className = v;
+    else if (k === "html") e.innerHTML = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (k === "disabled" || k === "checked" || k === "selected") {
+      if (v) e.setAttribute(k, k);
+      else e.removeAttribute(k);
+    } else e.setAttribute(k, v);
+  });
+  (children || []).forEach((ch) => { if (ch) e.appendChild(typeof ch === "string" ? document.createTextNode(ch) : ch); });
+  return e;
+}
+
+/* ---------------------------------------------------------- */
+/* Étape 1 — Caractéristiques                                  */
+/* ---------------------------------------------------------- */
+function rollerDV(deVie) {
+  return 1 + Math.floor(Math.random() * deVie);
+}
+
+function ensurePvRolls(character) {
+  const famille = character.familleId ? FAMILLES[character.familleId] : null;
+  if (!famille) return;
+  if (!character.pvRolls) character.pvRolls = [];
+  const needed = Math.max(0, (character.niveau || 1) - 1);
+  while (character.pvRolls.length < needed) {
+    character.pvRolls.push(rollerDV(famille.deVie));
+  }
+}
+
+function renderStepCaracs() {
+  const TOTAL = 77, MIN = 8, MAX = 18;
+  const wrap = el("div", { class: "panel" });
+  wrap.appendChild(el("h2", {}, ["Caractéristiques"]));
+
+  // Niveau du personnage (inchangé)
+  const champNiveau = el("div", { class: "field" }, [
+    el("label", {}, ["Niveau du personnage"]),
+    (() => {
+      const sel = el("select", { onchange: (e) => { character.niveau = parseInt(e.target.value, 10); renderAll(); } });
+      for (let n = 1; n <= PROGRESSION.niveauMax; n++) {
+        const o = el("option", { value: n }, [`Niveau ${n}`]);
+        if (n === character.niveau) o.setAttribute("selected", "selected");
+        sel.appendChild(o);
+      }
+      return sel;
+    })(),
+    el("div", { class: "hint" }, ["Un personnage débute au niveau 1. Modifiez ce champ pour préparer un personnage déjà expérimenté (les scores d'attaque, PV et PM en tiennent compte automatiquement)."]),
+  ]);
+  wrap.appendChild(champNiveau);
+
+  // Calcul des points dépensés / restants
+  const totalDepense = CARACS.reduce((s, c) => s + (character.caracsBase[c.id] || MIN), 0);
+  const restants = TOTAL - totalDepense;
+
+  // Compteur de points
+  const compteurMsg = restants === 0
+    ? "✓ Les 77 points sont entièrement répartis."
+    : restants > 0
+      ? `Il reste ${restants} point${restants > 1 ? "s" : ""} à distribuer (sur 77).`
+      : `⚠ Total dépassé de ${-restants} point${-restants > 1 ? "s" : ""} — réduisez certaines caractéristiques.`;
+  wrap.appendChild(el("div", { class: restants === 0 ? "info-box" : "warning-box" }, [compteurMsg]));
+
+  wrap.appendChild(el("div", { class: "hint" }, [
+    `Répartissez librement 77 points entre les six caractéristiques. Chaque score est compris entre ${MIN} (minimum) et ${MAX} (maximum).`
+  ]));
+
+  // Tableau des caractéristiques avec steppers −  valeur  +
+  const table = el("div", {});
+  CARACS.forEach((c) => {
+    const val = Math.max(MIN, Math.min(MAX, character.caracsBase[c.id] || MIN));
+    const mod = modFromValeur(val);
+    const row = el("div", { class: "carac-row" });
+
+    // Colonne 1 : nom
+    row.appendChild(el("div", { class: "nom" }, [`${c.nom} (${c.id})`]));
+
+    // Colonne 2 : stepper  − valeur +
+    const stepper = el("div", { style: "display:flex;align-items:center;gap:0.35rem;" });
+    const btnMoins = el("button", {
+      class: "btn secondary",
+      style: "padding:0.1rem 0.55rem;font-size:1rem;line-height:1.4;",
+      disabled: val <= MIN,
+      onclick: () => { character.caracsBase[c.id] = val - 1; renderAll(); },
+    }, ["−"]);
+    const valSpan = el("span", {
+      style: "min-width:1.8rem;text-align:center;font-family:Georgia,serif;font-size:1.05rem;font-weight:700;",
+    }, [String(val)]);
+    const btnPlus = el("button", {
+      class: "btn secondary",
+      style: "padding:0.1rem 0.55rem;font-size:1rem;line-height:1.4;",
+      disabled: val >= MAX || restants <= 0,
+      onclick: () => { character.caracsBase[c.id] = val + 1; renderAll(); },
+    }, ["+"]);
+    stepper.appendChild(btnMoins);
+    stepper.appendChild(valSpan);
+    stepper.appendChild(btnPlus);
+    row.appendChild(stepper);
+
+    // Colonne 3 : modificateur
+    row.appendChild(el("div", { class: "mod " + (mod > 0 ? "pos" : mod < 0 ? "neg" : "") }, [(mod >= 0 ? "+" : "") + mod]));
+
+    // Colonne 4 : description
+    row.appendChild(el("div", { class: "hint" }, [c.description]));
+
+    table.appendChild(row);
+  });
+  wrap.appendChild(table);
+
+  // Bouton de réinitialisation à la répartition équilibrée (77 pts)
+  const btnReset = el("button", {
+    class: "btn secondary",
+    style: "margin-top:0.8rem;",
+    onclick: () => { character.caracsBase = { FOR: 12, DEX: 12, CON: 13, INT: 13, SAG: 13, CHA: 14 }; renderAll(); },
+  }, ["↺ Réinitialiser la répartition"]);
+  wrap.appendChild(btnReset);
+
+  wrap.appendChild(el("div", { class: "hint" }, [
+    "Le modificateur est calculé sur la valeur de base, avant les modificateurs raciaux appliqués à l'étape suivante."
+  ]));
+
+  const btnContinuer = el("button", {
+    class: "btn",
+    disabled: restants !== 0,
+    onclick: () => goStep("peuple"),
+  }, ["Continuer →"]);
+  wrap.appendChild(el("div", { class: "btn-row" }, [btnContinuer]));
+
+  return wrap;
+}
+
+/* ---------------------------------------------------------- */
+/* Étape 2 — Peuple & culture                                  */
+/* ---------------------------------------------------------- */
+function renderStepPeuple() {
+  const wrap = el("div", { class: "panel" });
+  wrap.appendChild(el("h2", {}, ["Peuple & culture"]));
+
+  const modes = [
+    { id: "simple", label: "Peuple ordinaire" },
+    { id: "semi_elfe", label: "Semi-Elfe (Elfe × Humain)" },
+    { id: "sang_mele", label: "Sang-mêlé (deux peuples différents)" },
+    { id: "metis", label: "Métis (deux cultures elfes différentes)" },
+    { id: "aberration", label: "Aberration (Peau verte × autre)" },
+  ];
+  const champMode = el("div", { class: "field" }, [
+    el("label", {}, ["Origine du personnage"]),
+    (() => {
+      const sel = el("select", { onchange: (e) => { character.peuple.mode = e.target.value; renderAll(); } });
+      modes.forEach((m) => {
+        const o = el("option", { value: m.id }, [m.label]);
+        if (m.id === character.peuple.mode) o.setAttribute("selected", "selected");
+        sel.appendChild(o);
+      });
+      return sel;
+    })(),
+  ]);
+  wrap.appendChild(champMode);
+
+  if (character.peuple.mode === "simple") {
+    wrap.appendChild(renderPeupleSimple());
+  } else if (character.peuple.mode === "semi_elfe") {
+    wrap.appendChild(el("div", { class: "info-box" }, ["Règle officielle : aucun atout ni faiblesse. Le personnage commence avec la voie du peuple elfe et la voie du peuple humain, chacune limitée au rang 3. La voie culturelle est choisie parmi celles des Elfes ou des Humains."]));
+    character.peuple.parentA.peupleId = "elfe";
+    character.peuple.parentB.peupleId = "humain";
+    wrap.appendChild(renderChoixCultureParmiDeux("elfe", "humain"));
+  } else if (character.peuple.mode === "sang_mele") {
+    wrap.appendChild(el("div", { class: "info-box" }, ["Règle officielle : aucun atout ni faiblesse. Le personnage cumule les deux voies de peuple de ses parents, chacune limitée au rang 3, et choisit une voie culturelle parmi celles des deux peuples."]));
+    wrap.appendChild(renderChoixDeuxPeuples());
+  } else if (character.peuple.mode === "metis") {
+    wrap.appendChild(el("div", { class: "info-box" }, ["Règle officielle : le métis conserve la voie du peuple elfe complète (sans limite de rang) et les modificateurs elfes standards. Seule la voie culturelle change, selon le parent dont il est physiquement le plus proche."]));
+    character.peuple.parentA.peupleId = "elfe";
+    character.peuple.parentB.peupleId = "elfe";
+    wrap.appendChild(renderChoixCultureMetisOuAberration("elfe"));
+  } else if (character.peuple.mode === "aberration") {
+    wrap.appendChild(el("div", { class: "info-box" }, ["Règle officielle : voie du peuple des Peaux vertes (partagée). Atout +2 et faiblesse -2 à choisir parmi ceux des parents, trait au choix parmi ceux des parents, voie culturelle au choix parmi celles des parents."]));
+    wrap.appendChild(renderAberration());
+  }
+
+  const pres = Engine.resoudrePeuple(character);
+  const presComplet = !!pres && (character.peuple.mode === "simple" || pres.voiesCulturelles.length > 0) &&
+    (character.peuple.mode !== "aberration" || (character.peuple.atoutChoisi && character.peuple.faiblesseChoisie));
+  if (pres) {
+    wrap.appendChild(el("div", { class: "divider" }));
+    wrap.appendChild(el("h3", {}, ["Récapitulatif"]));
+    wrap.appendChild(el("p", {}, [pres.nomAffiche]));
+    const atouts = (pres.modificateurs.atouts || []).map((a) => `+${a.value} ${a.carac}`).join(", ") || "aucun";
+    const faiblesses = (pres.modificateurs.faiblesses || []).map((f) => `${f.value} ${f.carac}`).join(", ") || "aucune";
+    wrap.appendChild(el("p", {}, [`Atout(s) : ${atouts} — Faiblesse(s) : ${faiblesses}`]));
+    if (pres.trait) wrap.appendChild(el("p", {}, [el("strong", {}, [pres.trait.nom + " : "]), pres.trait.texte]));
+    if (!presComplet) wrap.appendChild(el("div", { class: "warning-box" }, ["Complétez tous les choix ci-dessus (voie culturelle, atout, faiblesse) avant de continuer."]));
+  }
+
+  wrap.appendChild(el("div", { class: "btn-row" }, [
+    el("button", { class: "btn secondary", onclick: () => goStep("caracs") }, ["← Retour"]),
+    el("button", { class: "btn", onclick: () => goStep("profil"), disabled: !presComplet }, ["Continuer →"]),
+  ]));
+  return wrap;
+}
+
+function renderPeupleSimple() {
+  const box = el("div", {});
+  const champPeuple = el("div", { class: "field" }, [
+    el("label", {}, ["Peuple"]),
+    (() => {
+      const sel = el("select", { onchange: (e) => { character.peuple.peupleId = e.target.value || null; character.peuple.cultureId = null; renderAll(); } });
+      sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+      PEUPLES.forEach((p) => {
+        const o = el("option", { value: p.id }, [p.nom]);
+        if (character.peuple.peupleId === p.id) o.setAttribute("selected", "selected");
+        sel.appendChild(o);
+      });
+      return sel;
+    })(),
+  ]);
+  box.appendChild(champPeuple);
+
+  const peuple = character.peuple.peupleId ? Engine.findPeuple(character.peuple.peupleId) : null;
+  if (peuple) {
+    if (peuple.flavor) box.appendChild(el("p", { class: "hint" }, [peuple.flavor]));
+    const cultures = el("div", { class: "grid-2" });
+    peuple.cultures.forEach((c) => {
+      const card = el("div", { class: "culture-card" + (character.peuple.cultureId === c.id ? " selected" : ""), onclick: () => { character.peuple.cultureId = c.id; renderAll(); } });
+      card.appendChild(el("h4", {}, [c.nom]));
+      if (c.flavor) card.appendChild(el("p", { class: "flavor" }, [c.flavor]));
+      cultures.appendChild(card);
+    });
+    box.appendChild(cultures);
+  }
+  return box;
+}
+
+function renderChoixCultureParmiDeux(peupleAId, peupleBId) {
+  const box = el("div", {});
+  const pA = Engine.findPeuple(peupleAId);
+  const pB = Engine.findPeuple(peupleBId);
+  box.appendChild(el("div", { class: "field" }, [
+    el("label", {}, ["Voie culturelle (choisie parmi les deux peuples d'origine)"]),
+    (() => {
+      const sel = el("select", { onchange: (e) => { character.peuple.cultureChoisieId = e.target.value || null; renderAll(); } });
+      sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+      [pA, pB].forEach((p) => {
+        p.cultures.forEach((c) => {
+          const o = el("option", { value: c.id }, [`${p.nom} — ${c.nom}`]);
+          if (character.peuple.cultureChoisieId === c.id) o.setAttribute("selected", "selected");
+          sel.appendChild(o);
+        });
+      });
+      return sel;
+    })(),
+  ]));
+  return box;
+}
+
+function renderChoixDeuxPeuples() {
+  const box = el("div", {});
+  const champs = el("div", { class: "grid-2" });
+  ["parentA", "parentB"].forEach((key, idx) => {
+    champs.appendChild(el("div", { class: "field" }, [
+      el("label", {}, [idx === 0 ? "Premier peuple" : "Second peuple"]),
+      (() => {
+        const sel = el("select", { onchange: (e) => { character.peuple[key].peupleId = e.target.value || null; character.peuple.cultureChoisieId = null; renderAll(); } });
+        sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+        PEUPLES.forEach((p) => {
+          const o = el("option", { value: p.id }, [p.nom]);
+          if (character.peuple[key].peupleId === p.id) o.setAttribute("selected", "selected");
+          sel.appendChild(o);
+        });
+        return sel;
+      })(),
+    ]));
+  });
+  box.appendChild(champs);
+
+  const idA = character.peuple.parentA.peupleId;
+  const idB = character.peuple.parentB.peupleId;
+  if (idA && idB && idA !== idB) {
+    box.appendChild(renderChoixCultureParmiDeux(idA, idB));
+  } else if (idA && idB && idA === idB) {
+    box.appendChild(el("div", { class: "warning-box" }, ["Les deux peuples doivent être différents pour un Sang-mêlé (utilisez plutôt le mode Métis ou Aberration pour deux cultures d'un même peuple)."]));
+  }
+  return box;
+}
+
+function renderChoixCultureMetisOuAberration(peupleId) {
+  const box = el("div", {});
+  const p = Engine.findPeuple(peupleId);
+  box.appendChild(el("div", { class: "field" }, [
+    el("label", {}, ["Culture retenue (celle dont le personnage est physiquement le plus proche)"]),
+    (() => {
+      const sel = el("select", { onchange: (e) => { character.peuple.cultureChoisieId = e.target.value || null; renderAll(); } });
+      sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+      p.cultures.forEach((c) => {
+        const o = el("option", { value: c.id }, [c.nom]);
+        if (character.peuple.cultureChoisieId === c.id) o.setAttribute("selected", "selected");
+        sel.appendChild(o);
+      });
+      return sel;
+    })(),
+  ]));
+  return box;
+}
+
+function renderAberration() {
+  const box = el("div", {});
+  box.appendChild(el("p", { class: "hint" }, ["Choisissez soit deux cultures différentes des Peaux vertes (Orc, Gobelin, Ogre), soit une culture des Peaux vertes et la culture d'un autre peuple."]));
+  const champs = el("div", { class: "grid-2" });
+  const cultureOptions = [];
+  PEUPLES.forEach((p) => p.cultures.forEach((c) => cultureOptions.push({ peupleId: p.id, peupleNom: p.nom, cultureId: c.id, cultureNom: c.nom })));
+
+  function champCulture(key, label) {
+    return el("div", { class: "field" }, [
+      el("label", {}, [label]),
+      (() => {
+        const sel = el("select", { onchange: (e) => {
+          const opt = cultureOptions.find((o) => o.cultureId === e.target.value);
+          character.peuple[key] = opt ? { peupleId: opt.peupleId, cultureId: opt.cultureId, peupleLabel: opt.cultureNom } : { peupleId: null, cultureId: null };
+          renderAll();
+        } });
+        sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+        cultureOptions.forEach((o) => {
+          const opt = el("option", { value: o.cultureId }, [`${o.peupleNom} — ${o.cultureNom}`]);
+          if (character.peuple[key].cultureId === o.cultureId) opt.setAttribute("selected", "selected");
+          sel.appendChild(opt);
+        });
+        return sel;
+      })(),
+    ]);
+  }
+  champs.appendChild(champCulture("parentA", "Première culture parente"));
+  champs.appendChild(champCulture("parentB", "Seconde culture parente"));
+  box.appendChild(champs);
+
+  const cA = character.peuple.parentA.cultureId ? Engine.findCultureAnyPeuple(character.peuple.parentA.cultureId) : null;
+  const cB = character.peuple.parentB.cultureId ? Engine.findCultureAnyPeuple(character.peuple.parentB.cultureId) : null;
+  if (cA && cB) {
+    box.appendChild(el("div", { class: "field" }, [
+      el("label", {}, ["Voie culturelle retenue"]),
+      (() => {
+        const sel = el("select", { onchange: (e) => { character.peuple.cultureChoisieId = e.target.value || null; renderAll(); } });
+        sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+        [cA, cB].forEach((cx) => {
+          const o = el("option", { value: cx.culture.id }, [`${cx.peuple.nom} — ${cx.culture.nom}`]);
+          if (character.peuple.cultureChoisieId === cx.culture.id) o.setAttribute("selected", "selected");
+          sel.appendChild(o);
+        });
+        return sel;
+      })(),
+    ]));
+    const atoutsParents = [];
+    const faiblessesParents = [];
+    [cA, cB].forEach((cx) => {
+      const mods = cx.culture.modificateurs || cx.peuple.modificateurs;
+      if (mods) {
+        (mods.atouts || []).forEach((a) => atoutsParents.push(a));
+        (mods.faiblesses || []).forEach((f) => faiblessesParents.push(f));
+      }
+    });
+    box.appendChild(el("div", { class: "field" }, [
+      el("label", {}, ["Atout (+2 à choisir parmi ceux des parents)"]),
+      (() => {
+        const sel = el("select", { onchange: (e) => { const i = parseInt(e.target.value, 10); character.peuple.atoutChoisi = isNaN(i) ? null : atoutsParents[i]; renderAll(); } });
+        sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+        atoutsParents.forEach((a, i) => sel.appendChild(el("option", { value: i }, [`+${a.value} ${a.carac}`])));
+        return sel;
+      })(),
+    ]));
+    box.appendChild(el("div", { class: "field" }, [
+      el("label", {}, ["Faiblesse (-2 à choisir parmi celles des parents)"]),
+      (() => {
+        const sel = el("select", { onchange: (e) => { const i = parseInt(e.target.value, 10); character.peuple.faiblesseChoisie = isNaN(i) ? null : faiblessesParents[i]; renderAll(); } });
+        sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+        faiblessesParents.forEach((f, i) => sel.appendChild(el("option", { value: i }, [`${f.value} ${f.carac}`])));
+        return sel;
+      })(),
+    ]));
+    const traits = [cA.culture.trait || cA.peuple.trait, cB.culture.trait || cB.peuple.trait].filter(Boolean);
+    box.appendChild(el("div", { class: "field" }, [
+      el("label", {}, ["Trait (au choix parmi ceux des parents)"]),
+      (() => {
+        const sel = el("select", { onchange: (e) => { const i = parseInt(e.target.value, 10); character.peuple.traitChoisi = isNaN(i) ? null : traits[i]; renderAll(); } });
+        sel.appendChild(el("option", { value: "" }, ["— Aucun —"]));
+        traits.forEach((t, i) => sel.appendChild(el("option", { value: i }, [t.nom])));
+        return sel;
+      })(),
+    ]));
+  }
+  return box;
+}
+
+/* ---------------------------------------------------------- */
+/* Étape 3 — Famille & profil                                  */
+/* ---------------------------------------------------------- */
+function renderStepProfil() {
+  const wrap = el("div", { class: "panel" });
+  wrap.appendChild(el("h2", {}, ["Famille & profil"]));
+
+  const champFamille = el("div", { class: "field" }, [
+    el("label", {}, ["Famille de profil"]),
+    (() => {
+      const sel = el("select", { onchange: (e) => {
+        character.familleId = e.target.value || null;
+        character.voiesProfilChoisies = [];
+        character.formationsMartialesChoisies = [];
+        character.talentMagiqueId = null;
+        character.profilId = null;
+        renderAll();
+      } });
+      sel.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+      Object.values(FAMILLES).forEach((f) => {
+        const o = el("option", { value: f.id }, [f.nom]);
+        if (character.familleId === f.id) o.setAttribute("selected", "selected");
+        sel.appendChild(o);
+      });
+      return sel;
+    })(),
+  ]);
+  wrap.appendChild(champFamille);
+
+  if (character.familleId) {
+    const famille = FAMILLES[character.familleId];
+    wrap.appendChild(el("div", { class: "info-box" }, [
+      `${famille.description} Dé de vie : d${famille.deVie}. Formations martiales : ${famille.formationsMartiales}.`,
+    ]));
+
+    // Profils suggérés
+    const pres = Engine.resoudrePeuple(character);
+    let cultureIdPourArchetype = null;
+    if (pres) {
+      if (character.peuple.mode === "simple") cultureIdPourArchetype = character.peuple.cultureId;
+      else if (character.peuple.mode === "semi_elfe") cultureIdPourArchetype = "semi_elfe";
+    }
+    const suggestions = cultureIdPourArchetype ? profilsPour(cultureIdPourArchetype, character.familleId) : [];
+
+    if (suggestions.length > 0) {
+      wrap.appendChild(el("h3", {}, ["Profil(s) suggéré(s) pour cette culture"]));
+      suggestions.forEach((p) => {
+        const card = el("div", { class: "archetype-card" + (character.profilId === p.id ? " selected" : "") });
+        card.appendChild(el("h4", {}, [p.nom]));
+        card.appendChild(el("p", { class: "desc" }, [p.description]));
+        card.appendChild(el("p", {}, [el("strong", {}, ["Voies de profil : "]), p.voies.map((v) => Engine.findVoieProfil(v).nom).join(", ")]));
+        card.appendChild(el("p", {}, [el("strong", {}, ["Formations martiales : "]), p.formationsMartiales.map((c) => CATEGORIES_EQUIPEMENT.find((x) => x.id === c).nom).join(", ")]));
+        if (p.talentMagique) card.appendChild(el("p", {}, [el("strong", {}, ["Talent magique : "]), TALENTS_MAGIQUES.find((t) => t.id === p.talentMagique).nom]));
+        card.appendChild(el("button", { class: "btn", onclick: (ev) => {
+          ev.stopPropagation();
+          character.profilId = p.id;
+          character.voiesProfilChoisies = [...p.voies];
+          character.formationsMartialesChoisies = [...p.formationsMartiales];
+          character.talentMagiqueId = p.talentMagique || null;
+          renderAll();
+        } }, ["Utiliser ce profil"]));
+        wrap.appendChild(card);
+      });
+      wrap.appendChild(el("div", { class: "hint" }, ["Vous pouvez aussi personnaliser librement les voies de profil ci-dessous (règle optionnelle de personnalisation, p.45)."]));
+    }
+
+    wrap.appendChild(el("div", { class: "divider" }));
+    wrap.appendChild(el("h3", {}, [`Voies de profil (choisir exactement 3 parmi les voies de la famille « ${famille.nom} »)`]));
+    const voiesFamille = VOIES_PROFIL.filter((v) => v.famille === character.familleId);
+    const grid = el("div", { class: "grid-3" });
+    voiesFamille.forEach((v) => {
+      const checked = character.voiesProfilChoisies.includes(v.id);
+      const card = el("div", { class: "voie-card" + (checked ? " selected" : ""), onclick: () => {
+        if (checked) {
+          character.voiesProfilChoisies = character.voiesProfilChoisies.filter((x) => x !== v.id);
+        } else if (character.voiesProfilChoisies.length < 3) {
+          character.voiesProfilChoisies.push(v.id);
+        }
+        character.profilId = null; // personnalisation : on quitte l'archétype prédéfini
+        renderAll();
+      } });
+      card.appendChild(el("h4", {}, [v.nom]));
+      if (v.prerequis) card.appendChild(el("p", { class: "desc" }, [v.prerequis]));
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+    wrap.appendChild(el("div", { class: "hint" }, [`${character.voiesProfilChoisies.length} / 3 voies sélectionnées.`]));
+
+    wrap.appendChild(el("div", { class: "divider" }));
+    wrap.appendChild(el("h3", {}, [`Formations martiales (choisir ${famille.formationsMartiales})`]));
+    const gridFM = el("div", { class: "grid-3" });
+    CATEGORIES_EQUIPEMENT.forEach((cat) => {
+      const checked = character.formationsMartialesChoisies.includes(cat.id);
+      const card = el("div", { class: "voie-card" + (checked ? " selected" : ""), onclick: () => {
+        if (checked) {
+          character.formationsMartialesChoisies = character.formationsMartialesChoisies.filter((x) => x !== cat.id);
+        } else if (character.formationsMartialesChoisies.length < famille.formationsMartiales) {
+          character.formationsMartialesChoisies.push(cat.id);
+        }
+        renderAll();
+      } });
+      card.appendChild(el("h4", {}, [cat.nom]));
+      card.appendChild(el("p", { class: "desc" }, [cat.exemples]));
+      gridFM.appendChild(card);
+    });
+    wrap.appendChild(gridFM);
+    wrap.appendChild(el("div", { class: "hint" }, [`${character.formationsMartialesChoisies.length} / ${famille.formationsMartiales} formations sélectionnées. (Les armes de paysan sont toujours maîtrisées par tous les profils.)`]));
+
+    if (famille.talentMagiqueRequis) {
+      wrap.appendChild(el("div", { class: "divider" }));
+      wrap.appendChild(el("h3", {}, ["Talent magique (offert aux mystiques)"]));
+      const selTal = el("select", { onchange: (e) => { character.talentMagiqueId = e.target.value || null; renderAll(); } });
+      selTal.appendChild(el("option", { value: "" }, ["— Choisir —"]));
+      TALENTS_MAGIQUES.forEach((t) => {
+        const o = el("option", { value: t.id }, [t.nom]);
+        if (character.talentMagiqueId === t.id) o.setAttribute("selected", "selected");
+        selTal.appendChild(o);
+      });
+      wrap.appendChild(selTal);
+      const tal = character.talentMagiqueId ? TALENTS_MAGIQUES.find((t) => t.id === character.talentMagiqueId) : null;
+      if (tal) wrap.appendChild(el("p", { class: "hint" }, [tal.texte]));
+    }
+  }
+
+  const ok = character.familleId && character.voiesProfilChoisies.length === 3 && character.formationsMartialesChoisies.length === (FAMILLES[character.familleId] ? FAMILLES[character.familleId].formationsMartiales : 99) && (!FAMILLES[character.familleId] || !FAMILLES[character.familleId].talentMagiqueRequis || character.talentMagiqueId);
+
+  wrap.appendChild(el("div", { class: "btn-row" }, [
+    el("button", { class: "btn secondary", onclick: () => goStep("peuple") }, ["← Retour"]),
+    el("button", { class: "btn", onclick: () => goStep("capacites"), disabled: !ok }, ["Continuer →"]),
+  ]));
+  return wrap;
+}
+
+/* ---------------------------------------------------------- */
+/* Étape 4 — Capacités                                          */
+/* ---------------------------------------------------------- */
+function coutCumule(rang) {
+  if (rang <= 0) return 0;
+  if (rang === 1) return 1;
+  if (rang === 2) return 2;
+  if (rang === 3) return 4;
+  if (rang === 4) return 6;
+  return 8;
+}
+
+function budgetTotal(character) {
+  return 2 * (character.niveau || 1);
+}
+
+function budgetDepense(character) {
+  let total = 0;
+  Object.values(character.progressionVoies || {}).forEach((rang) => { total += coutCumule(rang); });
+  return total;
+}
+
+function renderSectionPV() {
+  const famille = character.familleId ? FAMILLES[character.familleId] : null;
+  const box = el("div", { class: "panel" });
+  box.appendChild(el("h3", {}, ["Points de vie au-delà du niveau 1"]));
+  if (!famille) {
+    box.appendChild(el("div", { class: "hint" }, ["Choisissez d'abord une famille de profil (étape précédente) pour déterminer le dé de vie."]));
+    return box;
+  }
+  box.appendChild(el("p", { class: "hint" }, [
+    `Dé de vie de la famille « ${famille.nom} » : d${famille.deVie}. À chaque niveau au-delà du premier, le personnage gagne un jet de ce dé plus son Mod. de CON.`,
+  ]));
+
+  const champMethode = el("div", { class: "field" }, [
+    el("label", {}, ["Méthode de calcul pour les niveaux 2 et suivants"]),
+    (() => {
+      const sel = el("select", { onchange: (e) => { character.methodePV = e.target.value; renderAll(); } });
+      [
+        { id: "moyenne", label: `Moitié du dé de vie (forfaitaire, ${Math.ceil(famille.deVie / 2)} par niveau)` },
+        { id: "aleatoire", label: "Tirage aléatoire du dé de vie, géré par l'application" },
+      ].forEach((m) => {
+        const o = el("option", { value: m.id }, [m.label]);
+        if (character.methodePV === m.id) o.setAttribute("selected", "selected");
+        sel.appendChild(o);
+      });
+      return sel;
+    })(),
+  ]);
+  box.appendChild(champMethode);
+
+  if (character.methodePV === "aleatoire") {
+    ensurePvRolls(character);
+    box.appendChild(el("div", { class: "btn-row" }, [
+      el("button", { class: "btn secondary", onclick: () => {
+        character.pvRolls = character.pvRolls.map(() => rollerDV(famille.deVie));
+        renderAll();
+      } }, ["🎲 Relancer tous les jets"]),
+    ]));
+    const mods = Engine.modsFinaux(character);
+    const table = el("div", {});
+    for (let i = 0; i < character.niveau - 1; i++) {
+      const niveauCourant = i + 2;
+      const row = el("div", { class: "carac-row" });
+      row.appendChild(el("div", { class: "nom" }, [`Niveau ${niveauCourant}`]));
+      row.appendChild(el("div", { class: "mod" }, [`d${famille.deVie} = ${character.pvRolls[i]}`]));
+      row.appendChild(el("div", { class: "mod" }, [`+ Mod. CON ${mods.CON >= 0 ? "+" : ""}${mods.CON}`]));
+      row.appendChild(el("button", { class: "btn secondary", onclick: () => {
+        character.pvRolls[i] = rollerDV(famille.deVie);
+        renderAll();
+      } }, ["Relancer"]));
+      table.appendChild(row);
+    }
+    box.appendChild(table);
+  }
+
+  const s = Engine.statsSecondaires(character);
+  box.appendChild(el("div", { class: "info-box" }, [
+    `Points de vie totaux au niveau ${character.niveau} : ${s.pv} (dont ${s.deVie + s.modCON} au niveau 1, puis ${s.pv - s.deVie - s.modCON - s.pvBonus.total} cumulés sur les niveaux suivants${s.pvBonus.total ? `, et ${s.pvBonus.total} via les capacités acquises` : ""}).`,
+  ]));
+  return box;
+}
+
+function renderStepCapacites() {
+  const wrap = el("div", { class: "panel" });
+  wrap.appendChild(el("h2", {}, ["Capacités"]));
+
+  const depart = Engine.voiesDeDepart(character);
+  const auNiveau1 = character.niveau === 1;
+  const budget = budgetTotal(character);
+  const depense = budgetDepense(character);
+  const restant = budget - depense;
+
+  wrap.appendChild(el("div", { class: "info-box" }, [
+    auNiveau1
+      ? "Au niveau 1, choisissez exactement deux capacités de rang 1 parmi les cinq voies suivantes (trois voies de profil, une voie de peuple, une voie culturelle)."
+      : `Points de capacité disponibles : ${restant} / ${budget} (2 par niveau). Les rangs 1 et 2 coûtent 1 point chacun, les rangs 3 à 5 coûtent 2 points chacun, et doivent être acquis dans l'ordre croissant.`,
+  ]));
+  if (!auNiveau1) {
+    wrap.appendChild(el("div", { class: "hint" }, ["Au-delà du niveau 1, l'accès à de nouvelles voies dépend normalement des capacités déjà choisies (voie culturelle, voie de peuple, etc.). Cet outil vous laisse répartir librement les points sur l'ensemble des voies de profil ; validez la cohérence narrative avec votre MJ."]));
+  }
+
+  if (character.niveau > 1) {
+    wrap.appendChild(el("div", { class: "divider" }));
+    wrap.appendChild(renderSectionPV());
+  }
+
+  const voiesAffichees = auNiveau1 ? depart : Engine.toutesLesVoiesAvecRang(character);
+
+  voiesAffichees.forEach((v) => {
+    const rangActuel = (character.progressionVoies || {})[v.key] || 0;
+    const box = el("div", { class: "panel", style: "margin-bottom:0.8rem;" });
+    box.appendChild(el("h3", {}, [v.nom + (v.type ? ` (${v.type === "peuple" ? "voie de peuple" : v.type === "culturelle" ? "voie culturelle" : "voie de profil"})` : "")]));
+    if (v.rangMax < 5) box.appendChild(el("div", { class: "hint" }, [`Rang maximum pour ce personnage : ${v.rangMax}.`]));
+
+    v.rangs.forEach((capRang) => {
+      const acquise = capRang.rang <= rangActuel;
+      const rowClass = "capacite-rang" + (acquise ? " acquise" : " selectable");
+      const peutAcheter = !acquise && capRang.rang === rangActuel + 1 && capRang.rang <= v.rangMax &&
+        (auNiveau1 ? capRang.rang === 1 : true) &&
+        (coutCumule(capRang.rang) - coutCumule(rangActuel)) <= restant + (auNiveau1 ? 0 : 0);
+      const peutRetirer = acquise && capRang.rang === rangActuel;
+
+      const row = el("div", { class: rowClass });
+      const header = el("div", {});
+      header.appendChild(el("span", { class: "rang-num" }, [`R${capRang.rang}`]));
+      header.appendChild(el("span", { class: "nom-cap" }, [capRang.nom]));
+      if (capRang.effets && capRang.effets.length) header.appendChild(el("span", { class: "effet-badge" }, ["calcul auto"]));
+      row.appendChild(header);
+      row.appendChild(el("div", { class: "txt" }, [capRang.texte]));
+
+      const actions = el("div", { style: "margin-top:0.3rem;" });
+      if (peutAcheter) {
+        actions.appendChild(el("button", { class: "btn secondary", onclick: () => {
+          character.progressionVoies[v.key] = capRang.rang;
+          renderAll();
+        } }, [auNiveau1 ? "Choisir (rang 1)" : `Acquérir (coût ${coutCumule(capRang.rang) - coutCumule(rangActuel)})`]));
+      } else if (peutRetirer) {
+        actions.appendChild(el("button", { class: "btn secondary", onclick: () => {
+          character.progressionVoies[v.key] = rangActuel - 1;
+          if (character.progressionVoies[v.key] <= 0) delete character.progressionVoies[v.key];
+          renderAll();
+        } }, ["Retirer"]));
+      }
+      row.appendChild(actions);
+      box.appendChild(row);
+    });
+    wrap.appendChild(box);
+  });
+
+  if (auNiveau1) {
+    wrap.appendChild(el("div", { class: depense === 2 ? "info-box" : "warning-box" }, [
+      `Capacités de rang 1 choisies : ${depense} / 2.`,
+    ]));
+  }
+
+  wrap.appendChild(el("div", { class: "btn-row" }, [
+    el("button", { class: "btn secondary", onclick: () => goStep("profil") }, ["← Retour"]),
+    el("button", { class: "btn", onclick: () => goStep("equipement"), disabled: auNiveau1 && depense !== 2 }, ["Continuer →"]),
+  ]));
+  return wrap;
+}
+
+/* ---------------------------------------------------------- */
+/* Étape 5 — Équipement                                         */
+/* ---------------------------------------------------------- */
+function renderStepEquipement() {
+  const wrap = el("div", { class: "panel" });
+  wrap.appendChild(el("h2", {}, ["Équipement"]));
+  wrap.appendChild(el("div", { class: "info-box" }, ["Chaque personnage débute avec un sac d'aventurier (couverture, torche, briquet à silex, outre, gamelle, bourse de 5 po) ainsi qu'une arme ou une armure de chaque catégorie maîtrisée. Les armes de paysan sont toujours accessibles."]));
+
+  const categoriesArmesMaitrisees = ["paysan", ...character.formationsMartialesChoisies.filter((c) => CATEGORIES_EQUIPEMENT.find((x) => x.id === c).type === "arme")];
+  const categoriesArmuresMaitrisees = character.formationsMartialesChoisies.filter((c) => CATEGORIES_EQUIPEMENT.find((x) => x.id === c).type === "armure");
+
+  wrap.appendChild(el("h3", {}, ["Armes"]));
+  const armesDisponibles = ARMES.filter((a) => categoriesArmesMaitrisees.includes(a.categorie));
+  const armesGrid = el("div", { class: "grid-2" });
+  armesDisponibles.forEach((a) => {
+    const checked = character.equipement.armeIds.includes(a.id);
+    const card = el("div", { class: "voie-card" + (checked ? " selected" : ""), onclick: () => {
+      if (checked) character.equipement.armeIds = character.equipement.armeIds.filter((x) => x !== a.id);
+      else character.equipement.armeIds.push(a.id);
+      renderAll();
+    } });
+    card.appendChild(el("h4", {}, [a.nom]));
+    card.appendChild(el("p", { class: "desc" }, [
+      `DM ${a.dm}${a.mod && a.mod !== "-" ? " + Mod. " + a.mod : ""}${a.portee ? " · Portée " + a.portee : ""} · ${a.prix}${a.note ? " · " + a.note : ""}`,
+    ]));
+    armesGrid.appendChild(card);
+  });
+  wrap.appendChild(armesGrid);
+  if (armesDisponibles.length === 0) wrap.appendChild(el("div", { class: "hint" }, ["Sélectionnez d'abord vos formations martiales à l'étape précédente."]));
+
+  wrap.appendChild(el("div", { class: "divider" }));
+  wrap.appendChild(el("h3", {}, ["Armure"]));
+  const armuresDisponibles = ARMURES.filter((a) => categoriesArmuresMaitrisees.includes(a.categorie));
+  const armuresGrid = el("div", { class: "grid-2" });
+  const noneCard = el("div", { class: "voie-card" + (!character.equipement.armureId ? " selected" : ""), onclick: () => { character.equipement.armureId = null; renderAll(); } });
+  noneCard.appendChild(el("h4", {}, ["Aucune armure"]));
+  armuresGrid.appendChild(noneCard);
+  armuresDisponibles.forEach((a) => {
+    const checked = character.equipement.armureId === a.id;
+    const card = el("div", { class: "voie-card" + (checked ? " selected" : ""), onclick: () => { character.equipement.armureId = a.id; renderAll(); } });
+    card.appendChild(el("h4", {}, [a.nom]));
+    card.appendChild(el("p", { class: "desc" }, [`DEF +${a.bonusDEF} · ${a.prix}${a.note ? " · " + a.note : ""}`]));
+    armuresGrid.appendChild(card);
+  });
+  wrap.appendChild(armuresGrid);
+  if (armuresDisponibles.length === 0) wrap.appendChild(el("div", { class: "hint" }, ["Sélectionnez d'abord une formation martiale d'armure (légère ou lourde) à l'étape précédente."]));
+
+  wrap.appendChild(el("div", { class: "btn-row" }, [
+    el("button", { class: "btn secondary", onclick: () => goStep("capacites") }, ["← Retour"]),
+    el("button", { class: "btn", onclick: () => goStep("fiche") }, ["Continuer →"]),
+  ]));
+  return wrap;
+}
+
+/* ---------------------------------------------------------- */
+/* Étape 6 — Fiche & export                                     */
+/* ---------------------------------------------------------- */
+function renderStepFiche() {
+  const wrap = el("div", { class: "panel" });
+  wrap.appendChild(el("h2", {}, ["Touche finale"]));
+
+  wrap.appendChild(el("div", { class: "field" }, [
+    el("label", {}, ["Nom du personnage"]),
+    el("input", { type: "text", value: character.nom || "", oninput: (e) => { character.nom = e.target.value; renderSheet(); sauvegarder(); } }),
+  ]));
+  wrap.appendChild(el("div", { class: "field" }, [
+    el("label", {}, ["Apparence, historique, traits de caractère"]),
+    el("textarea", { oninput: (e) => { character.apparence = e.target.value; sauvegarder(); } }, [character.apparence || ""]),
+  ]));
+
+  wrap.appendChild(el("div", { class: "btn-row" }, [
+    el("button", { class: "btn", onclick: exporterJSON }, ["⬇ Exporter en JSON"]),
+    el("label", { class: "btn secondary", style: "cursor:pointer;" }, [
+      "⬆ Importer un JSON",
+      el("input", { type: "file", accept: "application/json", style: "display:none;", onchange: importerJSON }),
+    ]),
+    el("button", { class: "btn secondary", onclick: () => window.print() }, ["🖨 Imprimer la fiche"]),
+    el("button", { class: "btn secondary", onclick: nouveauDepart }, ["✚ Nouveau personnage"]),
+  ]));
+
+  wrap.appendChild(el("div", { class: "divider" }));
+  wrap.appendChild(el("div", { id: "print-sheet" }, [renderFicheComplete()]));
+
+  wrap.appendChild(el("div", { class: "btn-row no-print" }, [
+    el("button", { class: "btn secondary", onclick: () => goStep("equipement") }, ["← Retour"]),
+  ]));
+  return wrap;
+}
+
+function renderFicheComplete() {
+  const box = el("div", { class: "panel" });
+  box.appendChild(el("h2", {}, [character.nom || "Personnage sans nom"]));
+  const pres = Engine.resoudrePeuple(character);
+  const famille = character.familleId ? FAMILLES[character.familleId] : null;
+  box.appendChild(el("p", {}, [
+    `Niveau ${character.niveau} — ${pres ? pres.nomAffiche : "?"} — ${famille ? famille.nom : "?"}` + (character.profilId ? ` (${PROFILS.find((p) => p.id === character.profilId).nom})` : ""),
+  ]));
+  if (character.apparence) box.appendChild(el("p", { class: "hint" }, [character.apparence]));
+
+  // Caracs
+  const caracsF = Engine.caracsFinales(character);
+  const mods = Engine.modsFinaux(character);
+  const caracTable = el("div", { class: "grid-3" });
+  CARACS.forEach((c) => {
+    caracTable.appendChild(el("div", { class: "stat-box" }, [
+      el("div", { class: "label" }, [c.nom]),
+      el("div", { class: "value" }, [`${caracsF[c.id]} (${mods[c.id] >= 0 ? "+" : ""}${mods[c.id]})`]),
+    ]));
+  });
+  box.appendChild(caracTable);
+
+  box.appendChild(el("div", { class: "divider" }));
+  const s = Engine.statsSecondaires(character);
+  const statTable = el("div", { class: "grid-3" });
+  const statBox = (label, value) => el("div", { class: "stat-box" }, [el("div", { class: "label" }, [label]), el("div", { class: "value" }, [String(value)])]);
+  statTable.appendChild(statBox("PV", s.pv));
+  statTable.appendChild(statBox("Initiative", s.initiative));
+  statTable.appendChild(statBox("DEF", s.defense));
+  statTable.appendChild(statBox("Attaque contact", (s.attaqueContact >= 0 ? "+" : "") + s.attaqueContact));
+  statTable.appendChild(statBox("Attaque distance", (s.attaqueDistance >= 0 ? "+" : "") + s.attaqueDistance));
+  statTable.appendChild(statBox("Attaque magique", (s.attaqueMagique >= 0 ? "+" : "") + s.attaqueMagique));
+  statTable.appendChild(statBox("Points de chance", s.pc));
+  statTable.appendChild(statBox("Points de magie", s.pm));
+  statTable.appendChild(statBox("Points de récup.", s.prMax));
+  box.appendChild(statTable);
+  box.appendChild(el("div", { class: "hint" }, [
+    `Brûlure de magie : 1 PM = ${s.bruleMagieRatio} PV. Malus d'encombrement appliqué : DEF ${s.armureEncombrante ? "(bonus de DEX annulé) " : ""}, Initiative -${s.bonusDEFArmure}, Attaque à distance -${s.malusDistance}, Attaque magique -${s.bonusDEFArmure}, tests de DEX -${s.malusTestsDEX}.`,
+  ]));
+  if (s.niveauxSupplementaires > 0) {
+    const methLabel = character.methodePV === "aleatoire" ? "jets de DV mémorisés" : "moitié du DV (méthode forfaitaire)";
+    box.appendChild(el("div", { class: "hint" }, [
+      `Progression des PV (${methLabel}) : ${s.pvParNiveauDetail.map((d) => `niveau ${d.niveau} +${d.de + d.mod}`).join(", ")}.`,
+    ]));
+  }
+
+  box.appendChild(el("div", { class: "divider" }));
+  box.appendChild(el("h3", {}, ["Formations martiales"]));
+  box.appendChild(el("p", {}, [["Armes de paysan", ...character.formationsMartialesChoisies.map((c) => CATEGORIES_EQUIPEMENT.find((x) => x.id === c).nom)].join(", ")]));
+
+  if (character.talentMagiqueId) {
+    const tal = TALENTS_MAGIQUES.find((t) => t.id === character.talentMagiqueId);
+    box.appendChild(el("h3", {}, ["Talent magique"]));
+    box.appendChild(el("p", {}, [el("strong", {}, [tal.nom + " — "]), tal.texte]));
+  }
+
+  box.appendChild(el("div", { class: "divider" }));
+  box.appendChild(el("h3", {}, ["Capacités acquises"]));
+  const voies = Engine.toutesLesVoiesAvecRang(character);
+  let auMoinsUne = false;
+  voies.forEach((v) => {
+    const rang = (character.progressionVoies || {})[v.key] || 0;
+    if (rang <= 0) return;
+    auMoinsUne = true;
+    box.appendChild(el("h4", {}, [v.nom]));
+    for (let r = 1; r <= rang; r++) {
+      const cap = v.rangs[r - 1];
+      box.appendChild(el("div", { class: "capacite-rang acquise" }, [
+        el("div", {}, [el("span", { class: "rang-num" }, [`R${r}`]), el("span", { class: "nom-cap" }, [cap.nom])]),
+        el("div", { class: "txt" }, [cap.texte]),
+      ]));
+    }
+  });
+  if (!auMoinsUne) box.appendChild(el("p", { class: "hint" }, ["Aucune capacité choisie pour le moment."]));
+
+  box.appendChild(el("div", { class: "divider" }));
+  box.appendChild(el("h3", {}, ["Équipement"]));
+  const armeNoms = character.equipement.armeIds.map((id) => Engine.findArme(id)).filter(Boolean).map((a) => `${a.nom} (DM ${a.dm}${a.mod && a.mod !== "-" ? "+Mod." + a.mod : ""})`);
+  box.appendChild(el("p", {}, [el("strong", {}, ["Armes : "]), armeNoms.length ? armeNoms.join(", ") : "aucune"]));
+  const armure = character.equipement.armureId ? Engine.findArmure(character.equipement.armureId) : null;
+  box.appendChild(el("p", {}, [el("strong", {}, ["Armure : "]), armure ? `${armure.nom} (DEF +${armure.bonusDEF})` : "aucune"]));
+  box.appendChild(el("p", {}, [el("strong", {}, ["Sac d'aventurier : "]), "couverture, torche, briquet à silex, outre, gamelle, bourse de 5 po."]));
+
+  return box;
+}
+
+/* ---------------------------------------------------------- */
+/* Export / Import JSON                                         */
+/* ---------------------------------------------------------- */
+function exporterJSON() {
+  const data = JSON.stringify(character, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${(character.nom || "personnage").replace(/[^a-z0-9_-]+/gi, "_")}_terres_arran.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importerJSON(evt) {
+  const file = evt.target.files && evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      character = normaliserPersonnage(data);
+      const total = sommeCaracs(character);
+      if (total !== 77) {
+        currentStep = "caracs";
+        alert(`Personnage importé. Ses caractéristiques totalisent ${total} points (création selon une ancienne règle) : ajustez-les à l'étape 1 pour atteindre 77.`);
+      }
+      renderAll();
+    } catch (e) {
+      alert("Le fichier sélectionné n'est pas un personnage Terres d'Arran valide.");
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = "";
+}
+
+/* ---------------------------------------------------------- */
+/* Panneau latéral — fiche en direct                            */
+/* ---------------------------------------------------------- */
+function renderSheet() {
+  const panel = document.getElementById("sheet-content");
+  panel.innerHTML = "";
+
+  panel.appendChild(el("div", { class: "nom-perso" }, [character.nom || "Personnage sans nom"]));
+  const pres = Engine.resoudrePeuple(character);
+  const famille = character.familleId ? FAMILLES[character.familleId] : null;
+  const profil = character.profilId ? PROFILS.find((p) => p.id === character.profilId) : null;
+  panel.appendChild(el("div", { class: "sous-titre" }, [
+    `Niveau ${character.niveau}${pres ? " — " + pres.nomAffiche : ""}${famille ? " — " + famille.nom : ""}${profil ? " (" + profil.nom + ")" : ""}`,
+  ]));
+
+  const caracsF = Engine.caracsFinales(character);
+  const mods = Engine.modsFinaux(character);
+  const miniCaracs = el("div", { class: "mini-caracs" });
+  CARACS.forEach((c) => {
+    miniCaracs.appendChild(el("div", { class: "mini-carac" }, [
+      el("div", { class: "k" }, [c.id]),
+      el("div", { class: "v" }, [String(caracsF[c.id])]),
+      el("div", { class: "m" }, [(mods[c.id] >= 0 ? "+" : "") + mods[c.id]]),
+    ]));
+  });
+  panel.appendChild(miniCaracs);
+
+  const s = Engine.statsSecondaires(character);
+  const statGrid = el("div", { class: "stat-grid" });
+  const sb = (label, value) => el("div", { class: "stat-box" }, [el("div", { class: "label" }, [label]), el("div", { class: "value" }, [String(value)])]);
+  statGrid.appendChild(sb("PV", s.pv));
+  statGrid.appendChild(sb("DEF", s.defense));
+  statGrid.appendChild(sb("Initiative", s.initiative));
+  statGrid.appendChild(sb("PC", s.pc));
+  statGrid.appendChild(sb("Atq. contact", (s.attaqueContact >= 0 ? "+" : "") + s.attaqueContact));
+  statGrid.appendChild(sb("Atq. distance", (s.attaqueDistance >= 0 ? "+" : "") + s.attaqueDistance));
+  statGrid.appendChild(sb("Atq. magique", (s.attaqueMagique >= 0 ? "+" : "") + s.attaqueMagique));
+  statGrid.appendChild(sb("PM", s.pm));
+  panel.appendChild(statGrid);
+
+  const voies = Engine.toutesLesVoiesAvecRang(character);
+  const capacitesListe = [];
+  voies.forEach((v) => {
+    const rang = (character.progressionVoies || {})[v.key] || 0;
+    for (let r = 1; r <= rang; r++) capacitesListe.push(`${v.rangs[r - 1].nom} (${v.nom} R${r})`);
+  });
+  if (capacitesListe.length) {
+    panel.appendChild(el("h3", {}, ["Capacités"]));
+    const ul = el("ul", { class: "liste-simple" });
+    capacitesListe.forEach((t) => ul.appendChild(el("li", {}, [t])));
+    panel.appendChild(ul);
+  }
+
+  if (character.equipement.armeIds.length || character.equipement.armureId) {
+    panel.appendChild(el("h3", {}, ["Équipement"]));
+    const ul = el("ul", { class: "liste-simple" });
+    character.equipement.armeIds.forEach((id) => { const a = Engine.findArme(id); if (a) ul.appendChild(el("li", {}, [a.nom])); });
+    if (character.equipement.armureId) { const a = Engine.findArmure(character.equipement.armureId); if (a) ul.appendChild(el("li", {}, [`${a.nom} (DEF +${a.bonusDEF})`])); }
+    panel.appendChild(ul);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", init);
+
+</script>
+</body>
+</html>
